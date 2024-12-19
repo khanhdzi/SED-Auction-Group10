@@ -3,6 +3,7 @@
 #include <string>
 #include <ctime>
 #include <iomanip> // Dùng để định dạng thời gian
+#include <fstream> // Dùng để làm việc với file
 #include <algorithm> // Dùng cho remove_if
 using namespace std;
 
@@ -21,6 +22,9 @@ public:
     ItemListing(int itemId, string itemName, string cat, string desc, int startBid, int increment, time_t end, int minRating)
         : id(itemId), name(itemName), category(cat), description(desc), startingBid(startBid), 
           bidIncrement(increment), endTime(end), minBuyerRating(minRating) {}
+
+    // Constructor mặc định để đọc từ file
+    ItemListing() {}
 };
 
 // Lớp chính để quản lý danh sách mặt hàng
@@ -28,12 +32,88 @@ class ItemManager {
 private:
     vector<ItemListing> listings; // Lưu trữ danh sách mặt hàng
     int itemIdCounter = 1;        // Biến tạo ID tự động cho mặt hàng mới
+    const string filename = "listings.txt"; // Tên file lưu trữ dữ liệu
 
     bool isValidInput(int value) {
         return value > 0;
     }
 
+    void saveToFile() {
+        ofstream file(filename);
+        if (!file) {
+            cerr << "Error: Unable to open file for writing." << endl;
+            return;
+        }
+
+        for (const auto& item : listings) {
+            file << item.id << "|"
+                 << item.name << "|"
+                 << item.category << "|"
+                 << item.description << "|"
+                 << item.startingBid << "|"
+                 << item.bidIncrement << "|"
+                 << item.endTime << "|"
+                 << item.minBuyerRating << endl;
+        }
+
+        file.close();
+    }
+
+    void loadFromFile() {
+        ifstream file(filename);
+        if (!file) {
+            cerr << "Error: Unable to open file for reading. Starting with an empty list." << endl;
+            return;
+        }
+
+        listings.clear();
+        string line;
+        while (getline(file, line)) {
+            ItemListing item;
+            size_t pos = 0;
+            string token;
+
+            pos = line.find('|');
+            item.id = stoi(line.substr(0, pos));
+            line.erase(0, pos + 1);
+
+            pos = line.find('|');
+            item.name = line.substr(0, pos);
+            line.erase(0, pos + 1);
+
+            pos = line.find('|');
+            item.category = line.substr(0, pos);
+            line.erase(0, pos + 1);
+
+            pos = line.find('|');
+            item.description = line.substr(0, pos);
+            line.erase(0, pos + 1);
+
+            pos = line.find('|');
+            item.startingBid = stoi(line.substr(0, pos));
+            line.erase(0, pos + 1);
+
+            pos = line.find('|');
+            item.bidIncrement = stoi(line.substr(0, pos));
+            line.erase(0, pos + 1);
+
+            pos = line.find('|');
+            item.endTime = stoll(line.substr(0, pos));
+            line.erase(0, pos + 1);
+
+            item.minBuyerRating = stoi(line);
+
+            listings.push_back(item);
+        }
+
+        file.close();
+    }
+
 public:
+    ItemManager() {
+        loadFromFile();
+    }
+
     // Thêm mặt hàng mới
     void createListing() {
         string name, category, description;
@@ -91,12 +171,15 @@ public:
         );
 
         listings.push_back(newItem);
+        saveToFile();
         cout << "New item registered with ID: " << itemIdCounter << endl;
         itemIdCounter++;
     }
 
     // Hiển thị danh sách mặt hàng
     void viewListings() {
+        loadFromFile();
+
         if (listings.empty()) {
             cout << "\nThere are no items in the list.\n";
             return;
@@ -124,6 +207,7 @@ public:
 
         if (it != listings.end()) {
             listings.erase(it, listings.end());
+            saveToFile();
             cout << "Item with ID " << itemId << " deleted.\n";
         } else {
             cout << "No item found with ID " << itemId << ".\n";
@@ -142,6 +226,7 @@ public:
                 getline(cin, item.category);
                 cout << "New Starting Bid: ";
                 cin >> item.startingBid;
+                saveToFile();
                 cout << "Update successful!\n";
                 return;
             }
@@ -189,7 +274,7 @@ int main() {
                 cout << "Exiting...\n";
                 break;
             default:
-                cout << "Invalid choice. Try again.\n";
+                cout << "Invalid choice. Please try again.\n";
         }
     } while (choice != 5);
 
