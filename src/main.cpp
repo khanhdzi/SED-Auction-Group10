@@ -1,44 +1,46 @@
-#include "../include/controller/UserService.h"
+#include "../include/class/Authenticator.h"
+#include "../include/controller/UserController.h"
+#include "../include/dao/UserDataHandler.h"
+#include "../include/ui/WelcomeScreen.h" 
 #include <iostream>
 
 int main() {
-    UserService userService;
+    // Hardcoded users for testing
+    UserController userController;
+    WelcomeScreen welcomeScreen;
+    welcomeScreen.displayMenu();
+    
 
-    // Create and add users
-    User user1("john_doe", "password123", "John Doe", "123-456-7890", "john@example.com", "ID", "12345");
-    User user2("jane_smith", "securepass", "Jane Smith", "987-654-3210", "jane@example.com", "Passport", "67890");
-    User user3("admin_user", "admin123", "Admin User", "555-555-5555", "admin@example.com", "DriverLicense", "11111");
+   /*  // Create a test user with hardcoded values
+    std::string username = "hai0901";
+    std::string password = "Hai09012004";
+    std::string fullName = "haingx";
+    std::string phoneNumber = "09012004";
+    std::string email = "tha@example.com";
+    std::string idType = "user";
+    std::string idNumber = "99999";
 
-    // Add users to the database
-    if (userService.addUser(user1)) {
-        std::cout << "User 'john_doe' added successfully.\n";
+    User newUser(username, password, fullName, phoneNumber, email, idType, idNumber);
+    
+    // Save the user to file using UserDAO
+    UserDataHandler userDAO;
+    if (userDAO.saveUser(newUser)) {
+        std::cout << "User created successfully.\n";
     } else {
-        std::cout << "Failed to add user 'john_doe'.\n";
+        std::cout << "Failed to save user.\n";
     }
 
-    if (userService.addUser(user2)) {
-        std::cout << "User 'jane_smith' added successfully.\n";
+    // Now test authentication
+    Authenticator authenticator;
+    std::cout << "\nTesting authentication...\n";
+
+    // Attempt to authenticate with hardcoded credentials
+    if (authenticator.authenticate(username, password)) {
+        std::cout << "Authentication successful. Logged in as " 
+                  << authenticator.getLoggedUser()->getUsername() << "\n";
     } else {
-        std::cout << "Failed to add user 'jane_smith'.\n";
-    }
-
-    if (userService.addUser(user3)) {
-        std::cout << "User 'admin_user' added successfully.\n";
-    } else {
-        std::cout << "Failed to add user 'admin_user'.\n";
-    }
-
-    // List all users in the database
-    std::cout << "\nCurrent Users in Database:\n";
-    for (const auto& user : userService.getAllUsers()) {
-        std::cout << "Username: " << user.getUsername()
-                  << ", Full Name: " << user.getFullName()
-                  << ", Email: " << user.getEmail()
-                  << ", Phone: " << user.getPhoneNumber()
-                  << ", ID Type: " << user.getIdType()
-                  << ", ID Number: " << user.getIdNumber()
-                  << ", Active: " << (user.getIsActive() ? "Yes" : "No") << "\n";
-    }
+        std::cout << "Authentication failed.\n";
+    } */
 
     return 0;
 }

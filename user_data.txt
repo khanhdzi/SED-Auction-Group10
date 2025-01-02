@@ -1,0 +1,11 @@
+john_doe
+password123
+John Doe
+1234567890
+john.doe@example.com
+DriverLicense
+D12345
+0
+0
+0
+1

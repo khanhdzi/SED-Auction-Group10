@@ -1,7 +1,9 @@
+// include/class/User.h
 #ifndef USER_H
 #define USER_H
 
 #include <string>
+#include <fstream>  // For file stream operations
 
 class User {
 private:
@@ -15,23 +17,21 @@ private:
     double creditPoints;
     double buyerRating;
     double sellerRating;
-    bool activeStatus;  // Renamed data member
+    bool activeStatus;
 
 public:
-    User(const std::string& username, const std::string& password, const std::string& fullName, 
-         const std::string& phoneNumber, const std::string& email, const std::string& idType, 
+    // Default Constructor
+    User();
+
+    // Parameterized Constructor
+    User(const std::string& username, const std::string& password, const std::string& fullName,
+         const std::string& phoneNumber, const std::string& email, const std::string& idType,
          const std::string& idNumber);
 
-    bool validatePassword(const std::string& password);
-    void updateProfile(const std::string& newPassword, const std::string& newPhoneNumber, 
-                       const std::string& newEmail);
-    void topUpCreditPoints(double amount);
-    void deductCreditPoints(double amount);
-
-    // Getter methods
+    // Getters
     std::string getUsername() const;
-    std::string getPassword() const;  // Added getter for password
-    std::string getFullName() const;  // Added getter for fullName
+    std::string getPassword() const;
+    std::string getFullName() const;
     std::string getPhoneNumber() const;
     std::string getEmail() const;
     std::string getIdType() const;
@@ -39,9 +39,23 @@ public:
     double getCreditPoints() const;
     double getBuyerRating() const;
     double getSellerRating() const;
-    bool getIsActive() const;  // Renamed getter method
-    void setActive(bool active);
-    // void topUpCreditPoints(double amount);
+    bool isActive() const;
+
+    // Setters
+    void setPassword(const std::string& password);
+    void setFullName(const std::string& fullName);
+    void setPhoneNumber(const std::string& phoneNumber);
+    void setEmail(const std::string& email);
+    void setIdType(const std::string& idType);
+    void setIdNumber(const std::string& idNumber);
+    void setCreditPoints(double creditPoints);
+    void setBuyerRating(double buyerRating);
+    void setSellerRating(double sellerRating);
+    void setActiveStatus(bool activeStatus);
+
+    // Methods for Serialization
+    void serialize(std::ofstream& file) const;  // Serialize user to file
+    void deserialize(std::ifstream& file);      // Deserialize user from file
 };
 
-#endif
+#endif // USER_H

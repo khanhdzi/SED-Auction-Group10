@@ -3,8 +3,11 @@
 #define INPUTVALIDATOR_H
 
 #include <string>
+#include "../dao/userDataHandler.h"
 
 class InputValidator {
+
+
 public:
     // Boolean input validation
     static bool validateBoolean(const std::string& question);
@@ -31,6 +34,7 @@ public:
 
 private:
     static bool isValidPassword(const std::string& password);
+    static UserDataHandler userDAO;
     
 };
 

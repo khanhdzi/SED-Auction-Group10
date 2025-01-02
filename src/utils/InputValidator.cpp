@@ -7,6 +7,8 @@
 #include <ctime>
 #include <sstream>
 
+UserDataHandler InputValidator::userDAO;
+
 bool InputValidator::validateBoolean(const std::string& question) {
     std::string answer;
     std::cout << question;
@@ -84,14 +86,14 @@ std::string InputValidator::validateUserID(const std::string& question) {
         std::cout << question;
         std::cin >> userID;
 
-        std::regex userIDRegex("u-\\d{4}");
+        std::regex userIDRegex("u-\\d{5}");
         if (!std::regex_match(userID, userIDRegex)) {
-            std::cout << "Invalid User ID format. It should be 'u-XXXX', where 'XXXX' is a number." << std::endl;
+            std::cout << "Invalid User ID format. It should be 'u-XXXXX', where 'XXXXX' is a number." << std::endl;
             continue;
         }
 
         // Simulate a check for existing user ID (replace with actual logic)
-        if (userID == "u-1234") {  // Simulate a user check
+        if (userID == "u-12345") {  // Simulate a user check
             std::cout << "User ID already exists. Please enter a different User ID." << std::endl;
             continue;
         }
@@ -164,29 +166,26 @@ std::string InputValidator::validateDate(const std::string& question) {
     }
 }
 
-// Validate existing User ID
+// Validation for a valid existing User ID
 std::string InputValidator::validateExistingUserID(const std::string& question) {
-    std::string userID;
-
+    std::string input;
     while (true) {
-        std::cout << question;
-        std::cin >> userID;
-
-        std::regex userIDRegex("u-\\d{4}");
-        if (!std::regex_match(userID, userIDRegex)) {
-            std::cout << "Invalid User ID format. It should be 'u-XXXX', where 'XXXX' is a number." << std::endl;
-            continue;
+        input = validateUserID(question);  // Validate format first
+        std::vector<User> users = userDAO.getAllUsers();
+        bool exists = false;
+        for (const auto& user : users) {
+            if (user.getUsername() == input) {
+                exists = true;
+                break;
+            }
         }
-
-        // Simulate a check for existing user ID (replace with actual logic)
-        if (userID == "u-1234") {  // Simulate a user check
-            return userID;
+        if (exists) {
+            return input;
+        } else {
+            std::cout << "User ID does not exist. Please try again.\n";
         }
-
-        std::cout << "User ID does not exist. Please enter a valid User ID." << std::endl;
     }
 }
-
 std::string InputValidator::validatePassword(const std::string& question) {
     std::string input;
     bool isValid = false;
