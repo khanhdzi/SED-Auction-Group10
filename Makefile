@@ -1,7 +1,7 @@
 CXX = g++
 CXXFLAGS = -std=c++17 -Iinclude
 SRC = src/class/Authenticator.cpp src/controller/UserController.cpp \
-      src/dao/userDataHandler.cpp src/utils/InputValidator.cpp src/main.cpp src/class/User.cpp src/ui/WelcomeScreen.cpp
+      src/dao/userDataHandler.cpp src/utils/InputValidator.cpp src/main.cpp src/class/User.cpp src/ui/WelcomeScreen.cpp src/ui/BidUI.cpp src/DAO/BidDAO.cpp src/controller/BidController src/class/Bid.cpp
 OBJ = $(SRC:.cpp=.o)
 TARGET = app
 

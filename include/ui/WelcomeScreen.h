@@ -6,6 +6,7 @@ public:
     void displayWelcomeMessage();
     void displayMenu();
     void login();
+
 private:
     Authenticator authenticator;  // Assuming you are using this for login
 };
