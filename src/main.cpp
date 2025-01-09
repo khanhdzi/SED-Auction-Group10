@@ -5,20 +5,14 @@
 #include <iostream>
 
 int main() {
-    // Hardcoded users for testing
-    UserController userController;
-    WelcomeScreen welcomeScreen;
-    welcomeScreen.displayMenu();
-    
-
    /*  // Create a test user with hardcoded values
-    std::string username = "hai0901";
-    std::string password = "Hai09012004";
-    std::string fullName = "haingx";
+    std::string username = "alice0901";
+    std::string password = "alice2004";
+    std::string fullName = "Alice";
     std::string phoneNumber = "09012004";
     std::string email = "tha@example.com";
-    std::string idType = "user";
-    std::string idNumber = "99999";
+    std::string idType = "member";
+    std::string idNumber = "00001";
 
     User newUser(username, password, fullName, phoneNumber, email, idType, idNumber);
     
@@ -40,7 +34,14 @@ int main() {
                   << authenticator.getLoggedUser()->getUsername() << "\n";
     } else {
         std::cout << "Authentication failed.\n";
-    } */
+    } 
+    // Hardcoded users for testing
+     UserController userController;
+    WelcomeScreen welcomeScreen;
+    welcomeScreen.displayMenu(); 
+     */
 
-    return 0;
+    
+
+    return 0; 
 }

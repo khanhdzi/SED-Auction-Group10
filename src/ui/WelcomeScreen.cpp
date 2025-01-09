@@ -5,10 +5,10 @@
 #include "../../include/controller/UserController.h"
 #include "../../include/class/Authenticator.h"
 #include "../../include/utils/InputValidator.h"
-/* #include "../../include/ui/guest/GuestMenu.h"   
+#include "../../include/ui/guest/GuestMenu.h"   
 #include "../../include/ui/member/MemberMenu.h" 
-#include "../../include/ui/admin/AdminMenu.h"  */  
-UserController userController;
+#include "../../include/ui/admin/AdminMenu.h"  
+
 void WelcomeScreen::displayWelcomeMessage() {
     std::cout << "EEET2482/COSC2082 GROUP ASSIGNMENT\n";
     std::cout << "Semester 3 2024\n";
@@ -43,12 +43,30 @@ void WelcomeScreen::displayMenu() {
             }
         case 2:
             {
-                login();
+                authenticator.Userlogin();
+                if (authenticator.isLoggedIn()) {
+                    User* loggedUser = authenticator.getLoggedUser();
+                    if (loggedUser->getIdType() == "member") { // Check if user is a member
+                        MemberMenu memberMenu;
+                        memberMenu.displayMenu();
+                    } else {
+                        std::cout << "Access denied: Only members can log in here.\n";
+                    }
+                }
                 break;
             }
         case 3:
             {
-                login();
+                authenticator.Userlogin();
+                if (authenticator.isLoggedIn()) {
+                    User* loggedUser = authenticator.getLoggedUser();
+                    if (loggedUser->getIdType() == "admin") { // Check if user is an admin
+                        AdminMenu adminMenu;
+                        adminMenu.displayMenu();
+                    } else {
+                        std::cout << "Access denied: Only admins can log in here.\n";
+                    }
+                }
                 break;
             }
         default:
@@ -58,14 +76,4 @@ void WelcomeScreen::displayMenu() {
     }
 }
 
-void WelcomeScreen::login() {
-    std::string username = InputValidator::validateString("Enter username: ");
-    std::string password = InputValidator::validatePassword("Enter password: ");
-    
-    if (authenticator.authenticate(username, password)) {
-        std::cout << "Login successful.\n";
-        // Proceed to the next screen based on the role (Manager, Employee, etc.)
-    } else {
-        std::cout << "Invalid username or password.\n";
-    }
-}
+
