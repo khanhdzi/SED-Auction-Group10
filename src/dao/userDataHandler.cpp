@@ -2,7 +2,7 @@
 #include <fstream>
 #include <iostream>
 
-const std::string UserDataHandler::FILE_PATH = "data/users.dat";
+const std::string UserDataHandler::FILE_PATH = "../../data/users.dat";
 
 // Save a user to the binary file
 bool UserDataHandler::saveUser(const User& user) {

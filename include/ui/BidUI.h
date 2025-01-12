@@ -1,15 +1,15 @@
-// include/ui/BidUI.h
 #ifndef BID_UI_H
 #define BID_UI_H
 
 #include "../controller/BidController.h"
+#include <string>
 
 class BidUI {
 public:
-    void showBidMenu();
-    void processBidInput();
-    void displayBidHistory(const std::string& itemId);
-    
+    void showBidMenu(const std::string& userId);
+    void searchItems(const std::string& userId);
+    void placeBid(const std::string& userId);
+
 private:
     BidController bidController;
 };

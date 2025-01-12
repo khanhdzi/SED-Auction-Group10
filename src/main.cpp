@@ -2,6 +2,7 @@
 #include "../include/controller/UserController.h"
 #include "../include/dao/UserDataHandler.h"
 #include "../include/ui/WelcomeScreen.h" 
+#include "../include/ui/BidUI.h"
 #include <iostream>
 
 int main() {
@@ -9,6 +10,14 @@ int main() {
     UserController userController;
     WelcomeScreen welcomeScreen;
     welcomeScreen.displayMenu();
+    // Instantiate BidUI object
+    BidUI bidUI;
+    
+    // Call showBidMenu on the object
+    std::string userId = "hai0901";  // Example user ID
+    bidUI.showBidMenu(userId);  // Pass userId as argument
+
+
     
 
    /*  // Create a test user with hardcoded values

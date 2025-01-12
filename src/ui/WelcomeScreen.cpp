@@ -76,33 +76,3 @@ void WelcomeScreen::login() {
 
 
 }
-void BidUI::showBidMenu(const std::string& userId) {
-    while (true) {
-        std::cout << "\nBidding Menu\n";
-        std::cout << "1. Search Items\n";
-        std::cout << "2. Place Bid\n";
-        std::cout << "3. View My Active Bids\n";
-        std::cout << "4. Back to Main Menu\n";
-        std::cout << "Enter your choice: ";
-        
-        int choice;
-        std::cin >> choice;
-        
-        switch(choice) {
-            case 1:
-                searchItems(userId);
-                break;
-            case 2:
-                placeBid(userId);
-                break;
-            case 3:
-                // Implement view active bids
-                break;
-            case 4:
-                return;
-            default:
-                std::cout << "Invalid choice!\n";
-        }
-    }
-}
-

@@ -1,5 +1,5 @@
-// src/class/Bid.cpp
 #include "../../include/class/Bid.h"
+#include <ctime>
 
 Bid::Bid(const std::string& itemId, const std::string& bidderId, double amount)
     : itemId(itemId), bidderId(bidderId), bidAmount(amount), automaticBidLimit(0) {
@@ -11,4 +11,28 @@ Bid::Bid(const std::string& itemId, const std::string& bidderId, double amount, 
     bidTime = time(nullptr);
 }
 
-// Implement getters and setters...
+// Getters
+std::string Bid::getItemId() const {
+    return itemId;
+}
+
+std::string Bid::getBidderId() const {
+    return bidderId;
+}
+
+double Bid::getBidAmount() const {
+    return bidAmount;
+}
+
+double Bid::getAutomaticBidLimit() const {
+    return automaticBidLimit;
+}
+
+std::time_t Bid::getBidTime() const {
+    return bidTime;
+}
+
+// Setters
+void Bid::setAutomaticBidLimit(double bidLimit) {
+    automaticBidLimit = bidLimit;
+}
