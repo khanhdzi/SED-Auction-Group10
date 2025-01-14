@@ -227,3 +227,16 @@ bool InputValidator::isValidPassword(const std::string& password) {
 
     return true;
 }
+
+bool InputValidator::isValidEmail(const std::string& email) {
+    // Define a regular expression for a valid email address
+    const std::regex emailRegex(R"((^[\w.%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$))");
+    return std::regex_match(email, emailRegex);
+}
+
+// Validate phone number format
+bool InputValidator::isValidPhoneNumber(const std::string& phoneNumber) {
+    // Define a regular expression for a valid phone number (10-15 digits)
+    const std::regex phoneRegex(R"(^\+?\d{10,15}$)");
+    return std::regex_match(phoneNumber, phoneRegex);
+}
