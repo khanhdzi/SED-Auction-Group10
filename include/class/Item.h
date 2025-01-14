@@ -2,25 +2,38 @@
 #define ITEM_H
 
 #include <string>
-#include <ctime>
+#include <chrono>
 
-// Represents an individual item
-class ItemListing {
+class Item {
 public:
-    int id;                    // Unique ID for the item
-    std::string name;          // Name of the item
-    std::string category;      // Category of the item
-    std::string description;   // A brief description of the item
-    int startingBid;           // Starting bid price
-    int bidIncrement;          // Minimum increment for bids
-    time_t endTime;            // Auction end time
-    int minBuyerRating;        // Minimum buyer rating required to bid
+    // Constructor
+    Item(std::string name, std::string category, std::string description, 
+         double startingBid, double bidIncrement, std::chrono::system_clock::time_point endTime, 
+         int minBuyerRating);
 
-    // Constructor to initialize an item
-    ItemListing(int itemId, const std::string& itemName, const std::string& cat, const std::string& desc, int startBid, int increment, time_t end, int minRating);
+    // Getter functions
+    std::string getName() const;
+    std::string getCategory() const;
+    std::string getDescription() const;
+    double getStartingBid() const;
+    double getBidIncrement() const;
+    std::chrono::system_clock::time_point getEndTime() const;
+    int getMinBuyerRating() const;
+    std::chrono::system_clock::time_point getCreationTime() const;
 
-    // Default constructor for reading from files
-    ItemListing();
+    // Setter functions
+    void setStartingBid(double newStartingBid);
+    void setBidIncrement(double newBidIncrement);
+    
+private:
+    std::string name;
+    std::string category;
+    std::string description;
+    double startingBid;
+    double bidIncrement;
+    std::chrono::system_clock::time_point creationTime;
+    std::chrono::system_clock::time_point endTime;
+    int minBuyerRating;
 };
 
 #endif // ITEM_H
