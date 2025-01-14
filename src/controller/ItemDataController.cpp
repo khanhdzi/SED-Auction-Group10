@@ -1,114 +1,47 @@
-#include "ItemListingHandler.h"
+#include "../../include/controller/ItemDataController.h"
+#include <fstream>
 #include <iostream>
-#include <iomanip>
+#include <sstream>
+#include <string>
+#include <chrono>
+#include <ctime>
 
-using namespace std;
+// Hàm tạo một item mới từ dữ liệu người dùng nhập và lưu vào file
+void ItemDataController::createItemListing(std::string name, std::string category, std::string description, 
+                                           double startingBid, double bidIncrement, std::chrono::system_clock::time_point endTime,
+                                           int minBuyerRating) {
 
-// Constructor initializes the handler and loads items
-ItemListingHandler::ItemListingHandler(const string& file) : itemIdCounter(1), dataController(file) {
-    loadListings();
-}
-
-// Create a new item
-void ItemListingHandler::createListing() {
-    string name, category, description;
-    int startingBid, bidIncrement, minBuyerRating, duration;
-
-    cout << "\nEnter details for the new item:\n";
-    cout << "Name: ";
-    cin.ignore();
-    getline(cin, name);
-
-    cout << "Category: ";
-    getline(cin, category);
-
-    cout << "Description: ";
-    getline(cin, description);
-
-    cout << "Starting Bid: ";
-    cin >> startingBid;
-
-    cout << "Bid Increment: ";
-    cin >> bidIncrement;
-
-    cout << "Auction Duration (in hours): ";
-    cin >> duration;
-
-    cout << "Minimum Buyer Rating: ";
-    cin >> minBuyerRating;
-
-    time_t endTime = time(nullptr) + duration * 3600;
-
-    ItemListing newItem(itemIdCounter++, name, category, description, startingBid, bidIncrement, endTime, minBuyerRating);
-    listings.push_back(newItem);
-    saveListings();
-    cout << "Item created successfully!\n";
-}
-
-// Display all items
-void ItemListingHandler::viewListings() {
-    if (listings.empty()) {
-        cout << "No items to display.\n";
-        return;
-    }
-
-    cout << "\nCurrent Listings:\n";
-    for (const auto& item : listings) {
-        cout << "ID: " << item.id << "\n"
-             << "Name: " << item.name << "\n"
-             << "Category: " << item.category << "\n"
-             << "Description: " << item.description << "\n"
-             << "Starting Bid: " << item.startingBid << "\n"
-             << "Bid Increment: " << item.bidIncrement << "\n"
-             << "Ends: " << put_time(localtime(&item.endTime), "%Y-%m-%d %H:%M:%S") << "\n"
-             << "Min Buyer Rating: " << item.minBuyerRating << "\n"
-             << "--------------------\n";
-    }
-}
-
-// Delete an item by ID
-void ItemListingHandler::deleteListing(int itemId) {
-    // Use remove_if to find the items to be removed
-    auto it = remove_if(listings.begin(), listings.end(), [itemId](const ItemListing& item) {
-        return item.id == itemId; // Match the item with the given ID
-    });
-
-    if (it != listings.end()) { // Check if any items were found
-        listings.erase(it, listings.end()); // Erase the items from the vector
-        saveListings(); // Save the updated list to the file
-        cout << "Item with ID " << itemId << " deleted successfully.\n";
+    // Tạo Item mới
+    Item newItem(name, category, description, startingBid, bidIncrement, endTime, minBuyerRating);
+    
+    // Lưu thông tin vào file (ở đây chúng ta dùng file văn bản để lưu trữ)
+    std::ofstream outFile("item_listings.txt", std::ios::app);
+    if (outFile.is_open()) {
+        outFile << "Item: " << newItem.getName() << "\n";
+        outFile << "Category: " << newItem.getCategory() << "\n";
+        outFile << "Description: " << newItem.getDescription() << "\n";
+        outFile << "Starting Bid: " << newItem.getStartingBid() << "\n";
+        outFile << "Bid Increment: " << newItem.getBidIncrement() << "\n";
+        outFile << "Min Buyer Rating: " << newItem.getMinBuyerRating() << "\n";
+        std::time_t endTimeT = std::chrono::system_clock::to_time_t(endTime);
+        outFile << "End Time: " << std::ctime(&endTimeT);
+        outFile << "---------------------------------\n";
+        outFile.close();
     } else {
-        cout << "No item found with ID " << itemId << ".\n";
+        std::cerr << "Unable to open file for saving item listings.\n";
     }
 }
 
-
-// Update an item by ID
-void ItemListingHandler::updateListing(int itemId) {
-    for (auto& item : listings) {
-        if (item.id == itemId) {
-            cout << "Updating item...\n";
-            cout << "New Name: ";
-            cin.ignore();
-            getline(cin, item.name);
-            cout << "New Category: ";
-            getline(cin, item.category);
-            cout << "New Starting Bid: ";
-            cin >> item.startingBid;
-            saveListings();
-            cout << "Item updated successfully.\n";
-            return;
+// Hàm hiển thị tất cả các listings từ file
+void ItemDataController::viewListings() const {
+    std::ifstream inFile("item_listings.txt");
+    if (inFile.is_open()) {
+        std::string line;
+        while (std::getline(inFile, line)) {
+            std::cout << line << "\n";
         }
+        inFile.close();
+    } else {
+        std::cerr << "Unable to open file to read item listings.\n";
     }
-    cout << "Item not found.\n";
-}
-
-// Save listings to the file
-void ItemListingHandler::saveListings() {
-    dataController.saveToFile(listings);
-}
-
-// Load listings from the file
-void ItemListingHandler::loadListings() {
-    listings = dataController.loadFromFile();
 }
