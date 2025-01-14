@@ -1,24 +1,28 @@
-#ifndef ITEM_DATA_CONTROLLER_H
-#define ITEM_DATA_CONTROLLER_H
 
-#include "Item.h"
+
+
+#ifndef ITEMDATACONTROLLER_H
+#define ITEMDATACONTROLLER_H
+
+#include "../class/Item.h"
+#include "../dao/ItemListingHandler.h"
 #include <vector>
 #include <string>
 
-// Handles data persistence for item listings
+
+
 class ItemDataController {
-private:
-    const std::string filename; // File to store item data
-
 public:
-    // Constructor with filename
-    explicit ItemDataController(const std::string& file);
+    // Create a new item listing
+    void createItemListing(std::string name, std::string category, std::string description, 
+                           double startingBid, double bidIncrement, std::chrono::system_clock::time_point endTime,
+                           int minBuyerRating);
 
-    // Save all items to the file
-    void saveToFile(const std::vector<ItemListing>& items);
+    // View all item listings
+    void viewListings() const;
 
-    // Load all items from the file
-    std::vector<ItemListing> loadFromFile();
+private:
+    ItemListingHandler listingHandler;
 };
 
-#endif // ITEM_DATA_CONTROLLER_H
+#endif // ITEMDATACONTROLLER_H
