@@ -28,17 +28,24 @@ bool InputValidator::validateBoolean(const std::string& question) {
 // Validate string input
 std::string InputValidator::validateString(const std::string& question) {
     std::string input;
-    std::cout << question;
-    std::cin.ignore();  // Ignore any remaining newline characters from previous inputs
-    std::getline(std::cin, input);
 
-    if (input.empty()) {
-        std::cout << "Input cannot be empty. Please try again." << std::endl;
-        return validateString(question);
+    while (true) {
+        std::cout << question;
+
+        // Clear the input stream before capturing input
+        std::cin.clear();
+        std::getline(std::cin, input);
+
+        // Check for empty input
+        if (input.empty()) {
+            std::cout << "Input cannot be empty. Please try again." << std::endl;
+            continue;
+        }
+
+        return input;
     }
-
-    return input;
 }
+
 
 // Validate integer input within a given range
 int InputValidator::validateInt(const std::string& question, int min, int max) {

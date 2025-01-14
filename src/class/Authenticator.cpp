@@ -49,9 +49,8 @@ void Authenticator::registerUser() {
         return;
     }
 
-    std::string userID = generateUserID();
     std::string idType = "member";
-    std::string idNumber = InputValidator::validateString("Enter ID number: ");
+    std::string idNumber = generateUserID();
     User newUser(username, password, fullName, phoneNumber, email, idType, idNumber);
 
     if (userDAO.saveUser(newUser)) {
@@ -60,17 +59,29 @@ void Authenticator::registerUser() {
         std::cout << "Failed to register user.\n";
     }
 }
-
 void Authenticator::Userlogin() {
     while (true) {
+        // Get username input
         std::string username = InputValidator::validateString("Enter username (or -1 to exit): ");
-        std::string password = InputValidator::validatePassword("Enter password (or -1 to exit): ");
-
-        if (username == "-1" && password == "-1") {
+        if (username == "-1") {
             std::cout << "Exiting login...\n";
             break;
         }
 
+        // Get password input
+        std::string password = InputValidator::validateString("Enter password (or -1 to exit): ");
+        if (password == "-1") {
+            std::cout << "Exiting login...\n";
+            break;
+        }
+
+        // Validate password format
+        if (!InputValidator::isValidPassword(password)) { // Corrected method name
+            std::cout << "Invalid password format. Password must be at least 8 characters long and contain only letters and numbers.\n";
+            continue;
+        }
+
+        // Authenticate user
         if (this->authenticate(username, password)) {
             std::cout << "Login successful.\n";
             break;
@@ -79,6 +90,7 @@ void Authenticator::Userlogin() {
         }
     }
 }
+
 
 std::string Authenticator::generateUserID() {
     std::vector<User> users = userDAO.getAllUsers();
