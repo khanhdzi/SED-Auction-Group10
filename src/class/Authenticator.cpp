@@ -29,6 +29,10 @@ User* Authenticator::getLoggedUser() {
 }
 
 void Authenticator::registerUser() {
+    std::cout << "====================================\n";
+    std::cout << "          User Registration          \n";
+    std::cout << "====================================\n";
+            
     std::string username = InputValidator::validateString("Enter username: ");
     if (isUsernameExist(username)) {
         std::cout << "Username already exists. Please choose a different one.\n";
@@ -61,6 +65,9 @@ void Authenticator::registerUser() {
 }
 void Authenticator::Userlogin() {
     while (true) {
+        std::cout << "====================================\n";
+        std::cout << "            User Login          \n";
+        std::cout << "====================================\n";
         // Get username input
         std::string username = InputValidator::validateString("Enter username (or -1 to exit): ");
         if (username == "-1") {

@@ -34,6 +34,10 @@ public:
 
     static bool isValidPassword(const std::string& password);
 
+    static bool isValidEmail(const std::string& email);       
+      
+    static bool isValidPhoneNumber(const std::string& phone);
+
 
 
 private:

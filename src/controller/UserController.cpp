@@ -1,5 +1,6 @@
 #include "../../include/controller/UserController.h"
 #include "../../include/utils/InputValidator.h"
+#include "../../include/class/Authenticator.h"
 #include <iostream>
 #include <iomanip>
 #include <algorithm>  // For std::remove_if
@@ -87,6 +88,8 @@ void UserController::displayUserInfo(const std::string& username) {
     auto users = userDAO.getAllUsers();
     for (const auto& user : users) {
         if (user.getUsername() == username) {
+            std::cout << "User Information:\n";
+            std::cout << "-----------------\n";
             std::cout << "Username: " << user.getUsername() << "\n"
                       << "Full Name: " << user.getFullName() << "\n"
                       << "Phone: " << user.getPhoneNumber() << "\n"
@@ -98,6 +101,7 @@ void UserController::displayUserInfo(const std::string& username) {
     }
     std::cout << "User not found.\n";
 }
+
 
 // Delete a user by username
 void UserController::deleteUser(const std::string& username) {
@@ -129,15 +133,41 @@ void UserController::deleteUser(const std::string& username) {
 // Edit the profile of a user
 void UserController::editProfile(User& user) {
     std::cout << "Editing profile for user: " << user.getUsername() << "\n";
+    std::cout << "Press Enter to skip updating a field.\n";
 
-    std::string fullName = InputValidator::validateString("Enter new full name: ");
-    std::string phoneNumber = InputValidator::validateString("Enter new phone number: ");
-    std::string email = InputValidator::validateString("Enter new email: ");
-    
-    user.setFullName(fullName);
-    user.setPhoneNumber(phoneNumber);
-    user.setEmail(email);
+    // Prompt for a new full name
+    std::string fullName;
+    std::cout << "Enter new full name (current: " << user.getFullName() << "): ";
+    std::getline(std::cin >> std::ws, fullName); // Clear whitespace before getline
+    if (!fullName.empty()) {
+        user.setFullName(fullName);
+    }
 
+    // Prompt for a new phone number
+    std::string phoneNumber;
+    std::cout << "Enter new phone number (current: " << user.getPhoneNumber() << "): ";
+    std::getline(std::cin, phoneNumber); // No need for std::ws here as cin.ignore is handled
+    if (!phoneNumber.empty()) {
+        if (InputValidator::isValidPhoneNumber(phoneNumber)) {
+            user.setPhoneNumber(phoneNumber);
+        } else {
+            std::cout << "Invalid phone number format. Skipping update.\n";
+        }
+    }
+
+    // Prompt for a new email
+    std::string email;
+    std::cout << "Enter new email (current: " << user.getEmail() << "): ";
+    std::getline(std::cin, email); // No need for std::ws here as cin.ignore is handled
+    if (!email.empty()) {
+        if (InputValidator::isValidEmail(email)) {
+            user.setEmail(email);
+        } else {
+            std::cout << "Invalid email format. Skipping update.\n";
+        }
+    }
+
+    // Save updated information
     updateUser(user);
 }
 
