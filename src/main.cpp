@@ -7,11 +7,14 @@
 
 int main() {
      // Instantiate BidUI object
-    BidUI bidUI;
-    
+    // BidUI bidUI;
+   // Authenticator authenticator;
+   // authenticator.registerUser();
+    WelcomeScreen WelcomeScreen;
+    WelcomeScreen.displayMenu();
     // Call showBidMenu on the object
-    std::string userId = "hai0901";  // Example user ID
-    bidUI.showBidMenu(userId);  // Pass userId as argument
+/*     std::string userId = "hai0901";  // Example user ID
+    bidUI.showBidMenu(userId);  // Pass userId as argument */
 
    /*  // Create a test user with hardcoded values
     std::string username = "alice0901";

@@ -32,8 +32,12 @@ public:
 
     static std::string validatePassword(const std::string& question);
 
-private:
     static bool isValidPassword(const std::string& password);
+
+
+
+private:
+    
     static UserDataHandler userDAO;
     
 };

@@ -5,38 +5,6 @@
 #include <algorithm>  // For std::remove_if
 #include <fstream>    // For file I/O
 
-// Function to check if a username exists
-bool UserController::isUsernameExist(const std::string& username) {
-    auto users = userDAO.getAllUsers();
-    for (const auto& user : users) {
-        if (user.getUsername() == username) {
-            return true;  // Username exists
-        }
-    }
-    return false;  // Username does not exist
-}
-
-// Function to check if a phone number exists
-bool UserController::isPhoneNumberExist(const std::string& phoneNumber) {
-    auto users = userDAO.getAllUsers();
-    for (const auto& user : users) {
-        if (user.getPhoneNumber() == phoneNumber) {
-            return true;  // Phone number exists
-        }
-    }
-    return false;  // Phone number does not exist
-}
-
-// Function to check if an email exists
-bool UserController::isEmailExist(const std::string& email) {
-    auto users = userDAO.getAllUsers();
-    for (const auto& user : users) {
-        if (user.getEmail() == email) {
-            return true;  // Email exists
-        }
-    }
-    return false;  // Email does not exist
-}
 
 // Create a new user
 void UserController::createUser() {
@@ -202,4 +170,37 @@ void UserController::updateUser(const User& user) {
     } else {
         std::cout << "User not found.\n";
     }
+}
+
+// Function to check if a username exists
+bool UserController::isUsernameExist(const std::string& username) {
+    auto users = userDAO.getAllUsers();
+    for (const auto& user : users) {
+        if (user.getUsername() == username) {
+            return true;  // Username exists
+        }
+    }
+    return false;  // Username does not exist
+}
+
+// Function to check if a phone number exists
+bool UserController::isPhoneNumberExist(const std::string& phoneNumber) {
+    auto users = userDAO.getAllUsers();
+    for (const auto& user : users) {
+        if (user.getPhoneNumber() == phoneNumber) {
+            return true;  // Phone number exists
+        }
+    }
+    return false;  // Phone number does not exist
+}
+
+// Function to check if an email exists
+bool UserController::isEmailExist(const std::string& email) {
+    auto users = userDAO.getAllUsers();
+    for (const auto& user : users) {
+        if (user.getEmail() == email) {
+            return true;  // Email exists
+        }
+    }
+    return false;  // Email does not exist
 }

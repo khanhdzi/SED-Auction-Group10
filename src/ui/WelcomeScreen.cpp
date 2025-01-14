@@ -5,9 +5,11 @@
 #include "../../include/controller/UserController.h"
 #include "../../include/class/Authenticator.h"
 #include "../../include/utils/InputValidator.h"
+#include "../../include/utils/utils.h"
 #include "../../include/ui/guest/GuestMenu.h"   
 #include "../../include/ui/member/MemberMenu.h" 
 #include "../../include/ui/admin/AdminMenu.h"  
+
 
 void WelcomeScreen::displayWelcomeMessage() {
     std::cout << "EEET2482/COSC2082 GROUP ASSIGNMENT\n";
@@ -37,8 +39,10 @@ void WelcomeScreen::displayMenu() {
 
     switch (choice) {
         case 1:
-            {
-               
+            {   
+                Utils::clearScreen();  
+                GuestMenu GuestMenu;
+                GuestMenu.displayMenu();
                 break;
             }
         case 2:
@@ -47,6 +51,7 @@ void WelcomeScreen::displayMenu() {
                 if (authenticator.isLoggedIn()) {
                     User* loggedUser = authenticator.getLoggedUser();
                     if (loggedUser->getIdType() == "member") { // Check if user is a member
+                        Utils::clearScreen();  
                         MemberMenu memberMenu;
                         memberMenu.displayMenu();
                     } else {
@@ -57,10 +62,11 @@ void WelcomeScreen::displayMenu() {
             }
         case 3:
             {
-                authenticator.Userlogin();
+              authenticator.Userlogin();
                 if (authenticator.isLoggedIn()) {
                     User* loggedUser = authenticator.getLoggedUser();
                     if (loggedUser->getIdType() == "admin") { // Check if user is an admin
+                        Utils::clearScreen();  
                         AdminMenu adminMenu;
                         adminMenu.displayMenu();
                     } else {
