@@ -1,71 +1,33 @@
-#include "ItemDataController.h"
-#include <fstream>
+#include "../../include/dao/ItemListingHandler.h"
 #include <iostream>
-#include <sstream>
 
-using namespace std;
-
-// Constructor with filename
-ItemDataController::ItemDataController(const string& file) : filename(file) {}
-
-// Save all items to the file
-void ItemDataController::saveToFile(const vector<ItemListing>& items) {
-    ofstream file(filename);
-    if (!file) {
-        cerr << "Error: Couldn't open file for writing." << endl;
-        return;
-    }
-
-    for (const auto& item : items) {
-        file << item.id << "|"
-             << item.name << "|"
-             << item.category << "|"
-             << item.description << "|"
-             << item.startingBid << "|"
-             << item.bidIncrement << "|"
-             << item.endTime << "|"
-             << item.minBuyerRating << endl;
-    }
-    file.close();
+void ItemListingHandler::addListing(Item item) {
+    listings.push_back(item);
 }
 
-// Load all items from the file
-vector<ItemListing> ItemDataController::loadFromFile() {
-    ifstream file(filename);
-    vector<ItemListing> items;
-
-    if (!file) {
-        cerr << "Error: Couldn't open file for reading. Returning an empty list." << endl;
-        return items;
+bool ItemListingHandler::removeListing(int itemId) {
+    if (itemId >= 0 && itemId < listings.size()) {
+        listings.erase(listings.begin() + itemId);
+        return true;
     }
+    return false;
+}
 
-    string line;
-    while (getline(file, line)) {
-        ItemListing item;
-        istringstream stream(line);
-        string token;
-
-        getline(stream, token, '|');
-        item.id = stoi(token);
-
-        getline(stream, item.name, '|');
-        getline(stream, item.category, '|');
-        getline(stream, item.description, '|');
-
-        getline(stream, token, '|');
-        item.startingBid = stoi(token);
-
-        getline(stream, token, '|');
-        item.bidIncrement = stoi(token);
-
-        getline(stream, token, '|');
-        item.endTime = stoll(token);
-
-        getline(stream, token, '|');
-        item.minBuyerRating = stoi(token);
-
-        items.push_back(item);
+bool ItemListingHandler::editListing(int itemId, double newStartingBid, double newBidIncrement) {
+    if (itemId >= 0 && itemId < listings.size()) {
+        Item& item = listings[itemId];
+        // You can only edit listings if no bids have been placed yet
+        // Implement checking for bids here if necessary
+        item.setStartingBid(newStartingBid);
+        item.setBidIncrement(newBidIncrement);
+        return true;
     }
-    file.close();
-    return items;
+    return false;
+}
+
+void ItemListingHandler::viewAllListings() const {
+    for (const auto& item : listings) {
+        std::cout << "Item: " << item.getName() << ", Category: " << item.getCategory() << ", Starting Bid: "
+                  << item.getStartingBid() << ", Bid Increment: " << item.getBidIncrement() << "\n";
+    }
 }
