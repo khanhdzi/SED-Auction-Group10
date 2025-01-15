@@ -36,9 +36,6 @@ void GuestMenu::handleSelection(int choice) {
             break;
         case 2:
             {  
-                std::cout << "====================================\n";
-                std::cout << "          User Registration          \n";
-                std::cout << "====================================\n";
                 std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
                 Authenticator authenticator;
