@@ -9,7 +9,8 @@ public:
     void handleSelection(int choice);
 
 private:
-
+    void manageUsersMenu(); // Manage Users Menu
+    void statisticsMenu();
 };
 
 #endif // ADMIN_MENU_H

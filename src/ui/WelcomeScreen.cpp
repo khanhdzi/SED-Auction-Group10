@@ -41,8 +41,8 @@ void WelcomeScreen::displayMenu() {
         case 1:
             {   
                 Utils::clearScreen();  
-                GuestMenu GuestMenu;
-                GuestMenu.displayMenu();
+                GuestMenu guestMenu;
+                guestMenu.displayMenu();
                 break;
             }
         case 2:
@@ -55,14 +55,20 @@ void WelcomeScreen::displayMenu() {
                         MemberMenu memberMenu;
                         memberMenu.displayMenu();
                     } else {
+                        Utils::clearScreen(); // Clear screen before returning
                         std::cout << "Access denied: Only members can log in here.\n";
+                        Utils::printSeparatorLine();
+                        displayMenu(); // Show WelcomeScreen again
                     }
+                } else {
+                    Utils::clearScreen(); // Clear screen for failed login
+                    displayMenu(); // Show WelcomeScreen again
                 }
                 break;
             }
         case 3:
             {
-              authenticator.Userlogin();
+                authenticator.Userlogin();
                 if (authenticator.isLoggedIn()) {
                     User* loggedUser = authenticator.getLoggedUser();
                     if (loggedUser->getIdType() == "admin") { // Check if user is an admin
@@ -70,13 +76,20 @@ void WelcomeScreen::displayMenu() {
                         AdminMenu adminMenu;
                         adminMenu.displayMenu();
                     } else {
+                        Utils::clearScreen(); // Clear screen before returning
                         std::cout << "Access denied: Only admins can log in here.\n";
+                        Utils::printSeparatorLine();
+                        displayMenu(); // Show WelcomeScreen again
                     }
+                } else {
+                    Utils::clearScreen(); // Clear screen for failed login
+                    displayMenu(); // Show WelcomeScreen again
                 }
                 break;
             }
         default:
             std::cout << "Invalid choice, please try again.\n";
+            Utils::clearScreen();
             displayMenu();  // Re-run the welcome screen on invalid input
             break;
     }

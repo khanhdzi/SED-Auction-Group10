@@ -10,20 +10,13 @@ int main() {
     // BidUI bidUI;
    // Authenticator authenticator;
    // authenticator.registerUser();
-    WelcomeScreen WelcomeScreen;
-    WelcomeScreen.displayMenu();
-    // Call showBidMenu on the object
-/*     std::string userId = "hai0901";  // Example user ID
-    bidUI.showBidMenu(userId);  // Pass userId as argument */
-
-   /*  // Create a test user with hardcoded values
-    std::string username = "alice0901";
-    std::string password = "alice2004";
+   std::string username = "admin1";
+    std::string password = "admin123";
     std::string fullName = "Alice";
     std::string phoneNumber = "09012004";
     std::string email = "tha@example.com";
-    std::string idType = "member";
-    std::string idNumber = "00001";
+    std::string idType = "admin";
+    std::string idNumber = "u-99998";
 
     User newUser(username, password, fullName, phoneNumber, email, idType, idNumber);
     
@@ -34,9 +27,17 @@ int main() {
     } else {
         std::cout << "Failed to save user.\n";
     }
+    WelcomeScreen WelcomeScreen;
+    WelcomeScreen.displayMenu();
+    // Call showBidMenu on the object
+/*     std::string userId = "hai0901";  // Example user ID
+    bidUI.showBidMenu(userId);  // Pass userId as argument */
+
+     // Create a test user with hardcoded values
+    
 
     // Now test authentication
-    Authenticator authenticator;
+    /* Authenticator authenticator;
     std::cout << "\nTesting authentication...\n";
 
     // Attempt to authenticate with hardcoded credentials

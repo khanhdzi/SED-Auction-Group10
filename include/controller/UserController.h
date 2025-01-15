@@ -15,6 +15,7 @@ public:
     void deleteUser(const std::string& username);
     void editProfile(User& user);
     void updateUser(const User& user);
+    std::vector<User> getAllUsers();
 
     // Add these functions to check if the username, phone number, or email exist
     bool isUsernameExist(const std::string& username);

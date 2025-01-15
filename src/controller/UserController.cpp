@@ -234,3 +234,8 @@ bool UserController::isEmailExist(const std::string& email) {
     }
     return false;  // Email does not exist
 }
+
+// Function to get all user into vector
+std::vector<User> UserController::getAllUsers() {
+    return userDAO.getAllUsers();
+}
