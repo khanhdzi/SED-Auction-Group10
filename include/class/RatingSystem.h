@@ -1,39 +1,14 @@
-// RatingSystem.h
-#ifndef RATINGSYSTEM_H
-#define RATINGSYSTEM_H
+#ifndef RATING_SYSTEM_H
+#define RATING_SYSTEM_H
 
-#include <iostream>
-#include <vector>
 #include <string>
 #include <unordered_map>
-#include <numeric>
-#include <regex>
-
-#define FILENAME "ratings.txt" // Data file
-
-class User {
-private:
-    std::string userID;
-
-public:
-    User(std::string userID = "");
-
-    std::string getUserID() const;
-    void setUserID(const std::string& userID);
-    std::string toString() const;
-};
-
+#include <vector>
+//#include "RatingDataController.h"
+#include "../controller/RatingDataController.h"
 class RatingSystem {
 private:
-    std::unordered_map<std::string, std::vector<int>> buyerRatings;
-    std::unordered_map<std::string, std::vector<int>> sellerRatings;
-    std::unordered_map<std::string, User> users;
-
-    void saveToFile() const;
-    std::string joinRatings(const std::vector<int>& ratings) const;
-    std::vector<int> splitRatings(const std::string& ratings) const;
-    bool loadFromFile();
-    bool isValidUserID(const std::string& userID) const;
+    RatingDataController dataController;
 
 public:
     RatingSystem();
@@ -45,6 +20,4 @@ public:
     void displayAllUsers() const;
 };
 
-void menu();
-
-#endif // RATINGSYSTEM_H
+#endif // RATING_SYSTEM_H
