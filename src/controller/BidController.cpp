@@ -1,7 +1,10 @@
+#include <algorithm> // For std::max_element
 #include "../../include/controller/BidController.h"
 #include "../../include/dao/ItemDAO.h"
 #include "../../include/class/Item.h"
+#include "../../include/controller/RatingController.h"
 #include <iostream>
+
 
 BidController::BidController() {
     itemDAO = ItemDAO();  // Initialize ItemDAO
@@ -93,4 +96,68 @@ void BidController::viewItemDetails(const std::string& itemId) {
     } else {
         std::cerr << "Item not found!\n";
     }
+}
+
+
+void BidController::concludeAuction(const std::string& itemId) {
+    // Fetch all bids for the item
+    std::vector<Bid> bids = bidDAO.findBidsByItemId(itemId);
+    if (bids.empty()) {
+        std::cerr << "No bids found for this item.\n";
+        return;
+    }
+
+    // Find the highest bid
+    Bid highestBid = *std::max_element(bids.begin(), bids.end(),
+                                       [](const Bid& a, const Bid& b) {
+                                           return a.getBidAmount() < b.getBidAmount();
+                                       });
+
+    // Fetch the winning bidder and the seller
+    std::optional<User> winnerOpt = userDAO.findUserByCredentials(highestBid.getBidderId(), "");
+    std::optional<Item> itemOpt = itemDAO.findItemById(itemId);
+
+    if (!winnerOpt.has_value() || !itemOpt.has_value()) {
+        std::cerr << "Winner or item not found.\n";
+        return;
+    }
+
+    User winner = winnerOpt.value();
+    Item item = itemOpt.value();
+
+    std::optional<User> sellerOpt = userDAO.findUserByCredentials(item.getOwnerId(), "");
+    if (!sellerOpt.has_value()) {
+        std::cerr << "Seller not found.\n";
+        return;
+    }
+
+    User seller = sellerOpt.value();
+
+    // Transfer credit points
+    double amount = highestBid.getBidAmount();
+    if (winner.getCreditPoints() < amount) {
+        std::cerr << "Insufficient credit points for the transaction.\n";
+        return;
+    }
+
+    winner.setCreditPoints(winner.getCreditPoints() - amount);
+    seller.setCreditPoints(seller.getCreditPoints() + amount);
+
+    // Save updated users
+    userDAO.saveUser(winner);
+    userDAO.saveUser(seller);
+
+    // Trigger ratings
+    RatingController ratingController;
+    double sellerRating, buyerRating;
+
+    std::cout << "Please rate the seller (1-5): ";
+    std::cin >> sellerRating;
+    ratingController.rateUser(winner.getUsername(), seller.getUsername(), sellerRating, true);
+
+    std::cout << "Please rate the buyer (1-5): ";
+    std::cin >> buyerRating;
+    ratingController.rateUser(seller.getUsername(), winner.getUsername(), buyerRating, false);
+
+    std::cout << "Auction concluded successfully!\n";
 }

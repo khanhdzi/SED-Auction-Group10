@@ -93,9 +93,15 @@ void UserController::displayUserInfo(const std::string& username) {
             std::cout << "Username: " << user.getUsername() << "\n"
                       << "Full Name: " << user.getFullName() << "\n"
                       << "Phone: " << user.getPhoneNumber() << "\n"
-                      << "Email: " << user.getEmail() << "\n"
-                      << "ID Type: " << user.getIdType() << "\n"
-                      << "ID Number: " << user.getIdNumber() << "\n";
+                      << "Email: " << user.getEmail() << "\n";
+
+            // Fetch average ratings
+            RatingController ratingController;
+            double buyerAverage = ratingController.getAverageRating(username, true);
+            double sellerAverage = ratingController.getAverageRating(username, false);
+
+            std::cout << "Buyer Rating (Average): " << buyerAverage << "\n";
+            std::cout << "Seller Rating (Average): " << sellerAverage << "\n";
             return;
         }
     }

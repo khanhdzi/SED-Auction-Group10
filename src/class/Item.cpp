@@ -3,6 +3,24 @@
 Item::Item(const std::string& itemId, const std::string& name, double price, const std::string& category)
     : itemId(itemId), name(name), price(price), category(category) {}
 
+// Setters
+void Item::setHighestBid(double bid) {
+    highestBid = bid;
+}
+
+void Item::setHighestBidder(const std::string& bidder) {
+    highestBidder = bidder;
+}
+
+void Item::setEndDate(const std::string& endDate) {
+    this->endDate = endDate;
+}
+
+void Item::setOwnerId(const std::string& ownerId) {  // Set ownerId
+    this->ownerId = ownerId;
+}
+
+// Getters
 std::string Item::getItemId() const {
     return itemId;
 }
@@ -20,17 +38,21 @@ std::string Item::getCategory() const {
 }
 
 double Item::getHighestBid() const {
-    return highestBid;  // Return highest bid
+    return highestBid;
 }
 
 std::string Item::getHighestBidder() const {
-    return highestBidder;  // Return highest bidder
+    return highestBidder;
 }
 
 std::string Item::getEndDate() const {
-    return endDate;  // Return end date of the auction
+    return endDate;
+}
+
+std::string Item::getOwnerId() const {  // Return ownerId
+    return ownerId;
 }
 
 int Item::getCreditPoints() const {
-    return creditPoints;  // Return the credit points of the item
+    return creditPoints;
 }

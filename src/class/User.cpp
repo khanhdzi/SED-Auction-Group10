@@ -1,20 +1,20 @@
-#include "../../include/class/user.h"
+#include "../../include/class/User.h"
 #include <iostream>
 
 // Default Constructor
-User::User() 
-    : username(""), password(""), fullName(""), phoneNumber(""), 
-      email(""), idType(""), idNumber(""), creditPoints(0.0), 
+User::User()
+    : username(""), password(""), fullName(""), phoneNumber(""),
+      email(""), idType(""), idNumber(""), creditPoints(0.0),
       buyerRating(0.0), sellerRating(0.0), activeStatus(true) {}
 
 // Parameterized Constructor
-User::User(const std::string& username, const std::string& password, 
-           const std::string& fullName, const std::string& phoneNumber, 
-           const std::string& email, const std::string& idType, 
+User::User(const std::string& username, const std::string& password,
+           const std::string& fullName, const std::string& phoneNumber,
+           const std::string& email, const std::string& idType,
            const std::string& idNumber)
-    : username(username), password(password), fullName(fullName), 
-      phoneNumber(phoneNumber), email(email), idType(idType), 
-      idNumber(idNumber), creditPoints(0.0), buyerRating(0.0), 
+    : username(username), password(password), fullName(fullName),
+      phoneNumber(phoneNumber), email(email), idType(idType),
+      idNumber(idNumber), creditPoints(0.0), buyerRating(0.0),
       sellerRating(0.0), activeStatus(true) {}
 
 // Getters
@@ -91,53 +91,66 @@ void User::serialize(std::ofstream& file) const {
 // Deserialization Method (Binary Format)
 void User::deserialize(std::ifstream& file) {
     size_t length;
-    char buffer[1024];  // Buffer for reading strings
+    char buffer[1024]; // Buffer for reading strings
 
     // Read username
-    file.read(reinterpret_cast<char*>(&length), sizeof(length));
+    if (!file.read(reinterpret_cast<char*>(&length), sizeof(length))) return;
     file.read(buffer, length);
     buffer[length] = '\0';
     username = buffer;
 
     // Read password
-    file.read(reinterpret_cast<char*>(&length), sizeof(length));
+    if (!file.read(reinterpret_cast<char*>(&length), sizeof(length))) return;
     file.read(buffer, length);
     buffer[length] = '\0';
     password = buffer;
 
     // Read fullName
-    file.read(reinterpret_cast<char*>(&length), sizeof(length));
+    if (!file.read(reinterpret_cast<char*>(&length), sizeof(length))) return;
     file.read(buffer, length);
     buffer[length] = '\0';
     fullName = buffer;
 
     // Read phoneNumber
-    file.read(reinterpret_cast<char*>(&length), sizeof(length));
+    if (!file.read(reinterpret_cast<char*>(&length), sizeof(length))) return;
     file.read(buffer, length);
     buffer[length] = '\0';
     phoneNumber = buffer;
 
     // Read email
-    file.read(reinterpret_cast<char*>(&length), sizeof(length));
+    if (!file.read(reinterpret_cast<char*>(&length), sizeof(length))) return;
     file.read(buffer, length);
     buffer[length] = '\0';
     email = buffer;
 
     // Read idType
-    file.read(reinterpret_cast<char*>(&length), sizeof(length));
+    if (!file.read(reinterpret_cast<char*>(&length), sizeof(length))) return;
     file.read(buffer, length);
     buffer[length] = '\0';
     idType = buffer;
 
     // Read idNumber
-    file.read(reinterpret_cast<char*>(&length), sizeof(length));
+    if (!file.read(reinterpret_cast<char*>(&length), sizeof(length))) return;
     file.read(buffer, length);
     buffer[length] = '\0';
     idNumber = buffer;
 
     // Read other numeric and boolean fields
-    file.read(reinterpret_cast<char*>(&creditPoints), sizeof(creditPoints));
-    file.read(reinterpret_cast<char*>(&buyerRating), sizeof(buyerRating));
-    file.read(reinterpret_cast<char*>(&sellerRating), sizeof(sellerRating));
-    file.read(reinterpret_cast<char*>(&activeStatus), sizeof(activeStatus));
+    if (!file.read(reinterpret_cast<char*>(&creditPoints), sizeof(creditPoints))) return;
+    if (!file.read(reinterpret_cast<char*>(&buyerRating), sizeof(buyerRating))) return;
+    if (!file.read(reinterpret_cast<char*>(&sellerRating), sizeof(sellerRating))) return;
+    if (!file.read(reinterpret_cast<char*>(&activeStatus), sizeof(activeStatus))) return;
 }
+
+
+
+void User::addBuyerRating(double rating) {
+    static int buyerRatingCount = 0;
+    buyerRating = (buyerRating * buyerRatingCount + rating) / (++buyerRatingCount);
+}
+
+void User::addSellerRating(double rating) {
+    static int sellerRatingCount = 0;
+    sellerRating = (sellerRating * sellerRatingCount + rating) / (++sellerRatingCount);
+}
+

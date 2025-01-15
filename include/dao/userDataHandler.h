@@ -14,6 +14,10 @@ public:
     bool saveUser(const User& user);
     std::vector<User> getAllUsers();
     std::optional<User> findUserByCredentials(const std::string& username, const std::string& password);
+     // New methods
+    bool updateUser(const User& updatedUser); // Updates a user in the users.dat file
+    void displayUserDetails(const std::string& username); // Displays details of a specific user
+    
     static const std::string& getFilePath() { return FILE_PATH; }
 };
 

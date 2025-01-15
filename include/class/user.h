@@ -1,4 +1,3 @@
-// include/class/User.h
 #ifndef USER_H
 #define USER_H
 
@@ -15,8 +14,10 @@ private:
     std::string idType;
     std::string idNumber;
     double creditPoints;
-    double buyerRating;
-    double sellerRating;
+    double buyerRating;  // Direct buyer rating set
+    double sellerRating; // Direct seller rating set
+    int buyerRatingCount; // Number of buyer ratings
+    int sellerRatingCount; // Number of seller ratings
     bool activeStatus;
 
 public:
@@ -37,8 +38,8 @@ public:
     std::string getIdType() const;
     std::string getIdNumber() const;
     double getCreditPoints() const;
-    double getBuyerRating() const;
-    double getSellerRating() const;
+    double getBuyerRating() const;  // Average buyer rating
+    double getSellerRating() const; // Average seller rating
     bool isActive() const;
 
     // Setters
@@ -49,9 +50,13 @@ public:
     void setIdType(const std::string& idType);
     void setIdNumber(const std::string& idNumber);
     void setCreditPoints(double creditPoints);
-    void setBuyerRating(double buyerRating);
-    void setSellerRating(double sellerRating);
+    void setBuyerRating(double buyerRating); // Manually set buyer rating
+    void setSellerRating(double sellerRating); // Manually set seller rating
     void setActiveStatus(bool activeStatus);
+
+    // Add ratings
+    void addBuyerRating(double rating);  // Add and calculate average buyer rating
+    void addSellerRating(double rating); // Add and calculate average seller rating
 
     // Methods for Serialization
     void serialize(std::ofstream& file) const;  // Serialize user to file

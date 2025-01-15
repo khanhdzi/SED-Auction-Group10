@@ -3,7 +3,7 @@
 
 #include "../dao/BidDAO.h"
 #include "../dao/UserDataHandler.h"
-#include "../dao/ItemDAO.h"  // Add ItemDAO header
+#include "../dao/ItemDAO.h"
 #include "../class/Bid.h"
 #include "../class/User.h"
 #include "../class/Item.h"
@@ -26,6 +26,9 @@ public:
     // Function to view details of a specific item
     void viewItemDetails(const std::string& itemId);
 
+    // Function to conclude the auction and process the winning bid
+    void concludeAuction(const std::string& itemId); // Declaration added
+
 private:
     // Function to validate bid: checks if user has enough credit points for the bid
     bool validateBid(const std::string& itemId, const std::string& bidderId, double amount);
@@ -36,7 +39,7 @@ private:
     // DAO objects for accessing data
     BidDAO bidDAO;
     UserDataHandler userDAO;
-    ItemDAO itemDAO;  // Add ItemDAO declaration
+    ItemDAO itemDAO;
 };
 
-#endif
+#endif // BID_CONTROLLER_H
