@@ -228,6 +228,7 @@ bool InputValidator::isValidPassword(const std::string& password) {
     return true;
 }
 
+// Validate email format
 bool InputValidator::isValidEmail(const std::string& email) {
     // Define a regular expression for a valid email address
     const std::regex emailRegex(R"((^[\w.%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$))");
