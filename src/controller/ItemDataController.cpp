@@ -1,47 +1,58 @@
 #include "../../include/controller/ItemDataController.h"
-#include <fstream>
+#include "../../include/utils/InputValidator.h"
+#include "../../include/utils/Category.h"
 #include <iostream>
-#include <sstream>
-#include <string>
-#include <chrono>
-#include <ctime>
+#include <stdexcept>
 
-// Hàm tạo một item mới từ dữ liệu người dùng nhập và lưu vào file
-void ItemDataController::createItemListing(std::string name, std::string category, std::string description, 
-                                           double startingBid, double bidIncrement, std::chrono::system_clock::time_point endTime,
-                                           int minBuyerRating) {
+// Create a new item listing interactively
+void ItemDataController::createItemListing() const {
+    std::string name = InputValidator::validateString("Enter item name: ");
+    std::string category = InputValidator::validateString("Enter category: ");
+    if (!Category::isValidCategory(category)) {
+        throw std::invalid_argument("Invalid category: " + category);
+    }
+    std::string description = InputValidator::validateString("Enter description: ");
+    double startingBid = InputValidator::validateDouble("Enter starting bid: ", 0.0, 1e6);
+    double bidIncrement = InputValidator::validateDouble("Enter bid increment: ", 1.0, 1e5);
+    auto endTime = std::chrono::system_clock::now() + std::chrono::hours(24);
 
-    // Tạo Item mới
-    Item newItem(name, category, description, startingBid, bidIncrement, endTime, minBuyerRating);
-    
-    // Lưu thông tin vào file (ở đây chúng ta dùng file văn bản để lưu trữ)
-    std::ofstream outFile("item_listings.txt", std::ios::app);
-    if (outFile.is_open()) {
-        outFile << "Item: " << newItem.getName() << "\n";
-        outFile << "Category: " << newItem.getCategory() << "\n";
-        outFile << "Description: " << newItem.getDescription() << "\n";
-        outFile << "Starting Bid: " << newItem.getStartingBid() << "\n";
-        outFile << "Bid Increment: " << newItem.getBidIncrement() << "\n";
-        outFile << "Min Buyer Rating: " << newItem.getMinBuyerRating() << "\n";
-        std::time_t endTimeT = std::chrono::system_clock::to_time_t(endTime);
-        outFile << "End Time: " << std::ctime(&endTimeT);
-        outFile << "---------------------------------\n";
-        outFile.close();
-    } else {
-        std::cerr << "Unable to open file for saving item listings.\n";
+    createItemListing(name, category, description, startingBid, bidIncrement, endTime);
+}
+
+// Create a new item listing directly
+void ItemDataController::createItemListing(const std::string& name, const std::string& category, 
+                                           const std::string& description, double startingBid, 
+                                           double bidIncrement, std::chrono::system_clock::time_point endTime) const {
+    if (!Category::isValidCategory(category)) {
+        throw std::invalid_argument("Invalid category: " + category);
+    }
+
+    Item newItem(name, category, description, startingBid, bidIncrement, endTime, 0);
+    ItemDAO.addItem(newItem);
+    std::cout << "Item created successfully: " << name << "\n";
+}
+
+// View all item listings
+void ItemDataController::viewListings() const {
+    auto items = ItemDAO.getAllItems();
+    if (items.empty()) {
+        std::cout << "No items available.\n";
+        return;
+    }
+
+    for (size_t i = 0; i < items.size(); ++i) {
+        const auto& item = items[i];
+        std::cout << i + 1 << ". " << item.getName() << " | " << item.getCategory()
+                  << " | Starting Bid: $" << item.getStartingBid() << "\n";
     }
 }
 
-// Hàm hiển thị tất cả các listings từ file
-void ItemDataController::viewListings() const {
-    std::ifstream inFile("item_listings.txt");
-    if (inFile.is_open()) {
-        std::string line;
-        while (std::getline(inFile, line)) {
-            std::cout << line << "\n";
-        }
-        inFile.close();
-    } else {
-        std::cerr << "Unable to open file to read item listings.\n";
-    }
+// Save item listings to file
+void ItemDataController::saveListingsToFile(const std::string& filePath) const {
+    ItemDAO.saveItems();
+}
+
+// Load item listings from file
+void ItemDataController::loadListingsFromFile(const std::string& filePath) {
+    ItemDAO.loadItems();
 }

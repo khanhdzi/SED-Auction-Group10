@@ -3,23 +3,28 @@
 
 #include "../class/Item.h"
 #include <vector>
+#include <string>
 
 class ItemListingHandler {
 public:
-    // Add a new listing
-    void addListing(Item item);
+    // Add a new item to the listing
+    void addItem(const Item& item);
 
-    // Remove a listing
-    bool removeListing(int itemId);
+    // Remove an item by index
+    bool removeItem(int index);
 
-    // Edit a listing (only before bids have started)
-    bool editListing(int itemId, double newStartingBid, double newBidIncrement);
+    // Retrieve all items
+    std::vector<Item> getAllItems() const;
 
-    // View all listings
-    void viewAllListings() const;
+    // Save items to the default file
+    void saveItems() const;
+
+    // Load items from the default file
+    void loadItems();
 
 private:
-    std::vector<Item> listings;
+    std::vector<Item> items;
+    static const std::string defaultFilePath; // Default file path for storing items
 };
 
 #endif // ITEMLISTINGHANDLER_H

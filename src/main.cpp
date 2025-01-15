@@ -1,46 +1,44 @@
-#include "../include/class/Authenticator.h"
-#include "../include/controller/UserController.h"
-#include "../include/dao/UserDataHandler.h"
-#include "../include/ui/WelcomeScreen.h" 
+#include "../include/utils/Category.h"
+#include "../include/dao/ItemListingHandler.h"
+#include "../include/controller/ItemDataController.h"
 #include <iostream>
+#include <chrono>
 
 int main() {
-    // Hardcoded users for testing
-    UserController userController;
-    WelcomeScreen welcomeScreen;
-    welcomeScreen.displayMenu();
-    
+    // Initialize categories
+    Category::loadFromFile("data/categories.dat"); // Load from default file
 
-   /*  // Create a test user with hardcoded values
-    std::string username = "hai0901";
-    std::string password = "Hai09012004";
-    std::string fullName = "haingx";
-    std::string phoneNumber = "09012004";
-    std::string email = "tha@example.com";
-    std::string idType = "user";
-    std::string idNumber = "99999";
+    // Add hardcoded categories
+    Category::addCategory("Electronics");
+    Category::addCategory("Books");
+    Category::addCategory("Home Appliances");
 
-    User newUser(username, password, fullName, phoneNumber, email, idType, idNumber);
-    
-    // Save the user to file using UserDAO
-    UserDataHandler userDAO;
-    if (userDAO.saveUser(newUser)) {
-        std::cout << "User created successfully.\n";
-    } else {
-        std::cout << "Failed to save user.\n";
+    // Save categories to file
+    Category::saveToFile("data/categories.dat");
+
+    // List all categories
+    std::cout << "--- Categories ---\n";
+    Category::listCategories();
+
+    // Initialize item data controller
+    ItemDataController itemController;
+
+    // Create hardcoded items
+    auto endTime = std::chrono::system_clock::now() + std::chrono::hours(24); // 24 hours from now
+    try {
+        // Use createItemListing with no arguments (interactive creation)
+        std::cout << "Please create an item interactively:\n";
+        itemController.createItemListing();
+
+        // Save items to file
+        itemController.saveListingsToFile("data/items.dat");
+
+        // View all items
+        std::cout << "\n--- Item Listings ---\n";
+        itemController.viewListings();
+    } catch (const std::exception& e) {
+        std::cerr << "Error: " << e.what() << "\n";
     }
-
-    // Now test authentication
-    Authenticator authenticator;
-    std::cout << "\nTesting authentication...\n";
-
-    // Attempt to authenticate with hardcoded credentials
-    if (authenticator.authenticate(username, password)) {
-        std::cout << "Authentication successful. Logged in as " 
-                  << authenticator.getLoggedUser()->getUsername() << "\n";
-    } else {
-        std::cout << "Authentication failed.\n";
-    } */
 
     return 0;
 }
