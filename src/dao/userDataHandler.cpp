@@ -46,3 +46,53 @@ std::optional<User> UserDataHandler::findUserByCredentials(const std::string& us
     }
     return std::nullopt; // No user found with the provided credentials
 }
+
+
+// ADD TWO NEW METHODS
+
+bool UserDataHandler::updateUser(const User& updatedUser) {
+    std::vector<User> users = getAllUsers(); // Load all users
+    bool updated = false;
+
+    // Find and update the matching user
+    for (auto& user : users) {
+        if (user.getUsername() == updatedUser.getUsername()) {
+            user = updatedUser; // Update user
+            updated = true;
+            break;
+        }
+    }
+
+    if (updated) {
+        // Rewrite the entire file with updated users
+        std::ofstream file(FILE_PATH, std::ios::binary | std::ios::trunc);
+        if (!file.is_open()) {
+            std::cerr << "Failed to open file for rewriting.\n";
+            return false;
+        }
+        for (const auto& user : users) {
+            user.serialize(file);
+        }
+        file.close();
+    }
+
+    return updated;
+}
+
+void UserDataHandler::displayUserDetails(const std::string& username) {
+    auto users = getAllUsers();
+    for (const auto& user : users) {
+        std::cout << "Checking user: '" << user.getUsername() << "'\n"; // Debug
+        if (user.getUsername() == username) {
+            std::cout << "User Details for: " << user.getUsername() << "\n";
+            std::cout << "Full Name: " << user.getFullName() << "\n";
+            std::cout << "Phone Number: " << user.getPhoneNumber() << "\n";
+            std::cout << "Email: " << user.getEmail() << "\n";
+            std::cout << "Buyer Rating: " << user.getBuyerRating() << "\n";
+            std::cout << "Seller Rating: " << user.getSellerRating() << "\n";
+            return;
+        }
+    }
+    std::cerr << "User not found.\n";
+}
+

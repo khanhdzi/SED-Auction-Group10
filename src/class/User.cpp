@@ -141,3 +141,15 @@ void User::deserialize(std::ifstream& file) {
     file.read(reinterpret_cast<char*>(&sellerRating), sizeof(sellerRating));
     file.read(reinterpret_cast<char*>(&activeStatus), sizeof(activeStatus));
 }
+
+// new method
+
+void User::addBuyerRating(double rating) {
+    static int buyerRatingCount = 0;
+    buyerRating = (buyerRating * buyerRatingCount + rating) / (++buyerRatingCount);
+}
+
+void User::addSellerRating(double rating) {
+    static int sellerRatingCount = 0;
+    sellerRating = (sellerRating * sellerRatingCount + rating) / (++sellerRatingCount);
+}

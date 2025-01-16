@@ -53,6 +53,11 @@ public:
     void setSellerRating(double sellerRating);
     void setActiveStatus(bool activeStatus);
 
+    // Add ratings
+    void addBuyerRating(double rating);  // Add and calculate average buyer rating
+    void addSellerRating(double rating); // Add and calculate average seller rating
+
+
     // Methods for Serialization
     void serialize(std::ofstream& file) const;  // Serialize user to file
     void deserialize(std::ifstream& file);      // Deserialize user from file
