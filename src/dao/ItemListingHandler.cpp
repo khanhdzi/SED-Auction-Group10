@@ -1,137 +1,125 @@
 #include "../../include/dao/ItemListingHandler.h"
-#include <fstream>
-#include <iostream>
 #include <algorithm>
+#include <iostream>
+#include <fstream>
 #include <filesystem>
 
 const std::string ItemListingHandler::defaultFilePath = "data/items.dat";
 
-// Add a new item
+ItemListingHandler::ItemListingHandler() {
+    loadItems(defaultFilePath);
+}
+
 void ItemListingHandler::addItem(const Item& item) {
     items.push_back(item);
 }
 
-// Remove an item by index
-bool ItemListingHandler::removeItem(int index) {
-    if (index < 0 || index >= static_cast<int>(items.size())) {
-        std::cerr << "Error: Invalid index.\n";
-        return false;
+bool ItemListingHandler::removeItemById(const std::string& itemId) {
+    auto it = std::remove_if(items.begin(), items.end(),
+        [&itemId](const Item& item) { return item.getItemID() == itemId; });
+    if (it != items.end()) {
+        items.erase(it, items.end());
+        return true;
     }
-    items.erase(items.begin() + index);
-    return true;
+    return false;
 }
 
-// Retrieve all items
-std::vector<Item> ItemListingHandler::getAllItems() const {
-    return items;
+std::optional<Item> ItemListingHandler::findItemById(const std::string& itemId) const {
+    auto it = std::find_if(items.begin(), items.end(),
+        [&itemId](const Item& item) { return item.getItemID() == itemId; });
+    if (it != items.end()) {
+        return *it;
+    }
+    return std::nullopt;
 }
 
-// Save items to the default file path
-void ItemListingHandler::saveItems() const {
-    saveItems(defaultFilePath);
-}
-
-// Save items to a specified file path
-void ItemListingHandler::saveItems(const std::string& filePath) const {
-    // Ensure directory exists
-    std::filesystem::create_directories("data");
-
-    std::ofstream file(filePath, std::ios::binary);
-    if (!file.is_open()) {
-        std::cerr << "Error: Failed to open file for saving items.\n";
-        return;
-    }
-
-    size_t size = items.size();
-    std::cout << "Saving " << size << " items to file.\n";
-
-    file.write(reinterpret_cast<const char*>(&size), sizeof(size));
-    for (const auto& item : items) {
-        item.serialize(file);
-    }
-
-    file.close();
-    std::cout << "Items saved successfully to " << filePath << ".\n";
-}
-
-
-
-// Load items from the default file path
-void ItemListingHandler::loadItems() {
-    loadItems(defaultFilePath);
-}
-
-// Load items from a specified file path
-
-void ItemListingHandler::loadItems(const std::string& filePath) {
-    // Debug message to show the file path being used
-    std::cout << "Attempting to load items from: " << filePath << "\n";
-
-    // Check if the file exists
-    if (!std::filesystem::exists(filePath)) {
-        std::cerr << "Error: File not found at " << filePath << ".\n";
-        return;
-    }
-
-    std::ifstream file(filePath, std::ios::binary);
-
-    if (!file.is_open()) {
-        std::cerr << "Error: Failed to open file for loading items.\n";
-        return;
-    }
-
-    size_t size;
-    file.read(reinterpret_cast<char*>(&size), sizeof(size));
-
-    // Check if the file is empty or invalid
-    if (file.fail() || size == 0) {
-        std::cerr << "Error: File is empty or contains invalid data.\n";
-        file.close();
-        return;
-    }
-
-    items.clear();
-    for (size_t i = 0; i < size; ++i) {
-        try {
-            Item item("", "", "", 0.0, 0.0, std::chrono::system_clock::now(), 0);
-            item.deserialize(file);
-
-            // Validate the deserialized item (optional)
-            if (item.getName().empty() || item.getCategory().empty()) {
-                std::cerr << "Warning: Skipping invalid item at index " << i << ".\n";
-                continue;
-            }
-
-            items.push_back(item);
-        } catch (const std::exception& e) {
-            std::cerr << "Error: Failed to deserialize item at index " << i << ". Exception: " << e.what() << "\n";
-        }
-    }
-
-    file.close();
-    std::cout << "Items loaded successfully from " << filePath << ".\n";
-}
-
-
-bool ItemListingHandler::updateItem(const Item& updatedItem) {
+bool ItemListingHandler::editItem(const std::string& itemId, const std::string& newDescription, double newStartingBid) {
     for (auto& item : items) {
-        if (item.getName() == updatedItem.getName()) { // Assuming item name is the ID
-            item = updatedItem;
+        if (item.getItemID() == itemId) {
+            item.setDescription(newDescription);
+            item.setStartingBid(newStartingBid);
             return true;
         }
     }
     return false;
 }
 
-// Delete an item by ID
-bool ItemListingHandler::deleteItemById(const std::string& itemId) {
-    auto it = std::remove_if(items.begin(), items.end(), [&](const Item& item) {
-        return item.getName() == itemId; // Assuming item name is the ID
-    });
+std::vector<Item> ItemListingHandler::getAllItems() const {
+    return items;
+}
 
-    if (it != items.end()) {
-        items.erase(it, items.end());
-        return true;
+std::vector<Item> ItemListingHandler::searchItemsByCategory(const std::string& category) const {
+    std::vector<Item> result;
+    std::copy_if(items.begin(), items.end(), std::back_inserter(result),
+        [&category](const Item& item) { return item.getCategory() == category; });
+    return result;
+}
+
+std::vector<Item> ItemListingHandler::searchItemsByKeyword(const std::string& keyword) const {
+    std::vector<Item> result;
+    std::copy_if(items.begin(), items.end(), std::back_inserter(result),
+        [&keyword](const Item& item) {
+            return item.getName().find(keyword) != std::string::npos ||
+                   item.getDescription().find(keyword) != std::string::npos;
+        });
+    return result;
+}
+
+std::vector<Item> ItemListingHandler::sortItemsBy(const std::string& criteria) const {
+    auto sortedItems = items;
+    if (criteria == "endTime") {
+        std::sort(sortedItems.begin(), sortedItems.end(),
+                  [](const Item& a, const Item& b) { return a.getEndTime() < b.getEndTime(); });
+    } else if (criteria == "startingBid") {
+        std::sort(sortedItems.begin(), sortedItems.end(),
+                  [](const Item& a, const Item& b) { return a.getStartingBid() < b.getStartingBid(); });
+    } else if (criteria == "currentBid") {
+        std::sort(sortedItems.begin(), sortedItems.end(),
+                  [](const Item& a, const Item& b) { return a.getCurrentBid() < b.getCurrentBid(); });
     }
-    return false;
+    return sortedItems;
+}
+
+void ItemListingHandler::saveItems(const std::string& filePath) const {
+    std::filesystem::create_directories(std::filesystem::path(filePath).parent_path());
+    std::ofstream file(filePath, std::ios::binary);
+    size_t size = items.size();
+    file.write(reinterpret_cast<const char*>(&size), sizeof(size));
+    for (const auto& item : items) {
+        item.serialize(file);
+    }
+}
+
+void ItemListingHandler::loadItems(const std::string& filePath) {
+    std::ifstream file(filePath, std::ios::binary);
+    if (!file.is_open()) {
+        std::cerr << "Error: Could not open file " << filePath << " for loading.\n";
+        return;
+    }
+
+    size_t size;
+    file.read(reinterpret_cast<char*>(&size), sizeof(size));
+    if (file.fail() || size == 0) {
+        std::cerr << "Error: File " << filePath << " is empty or invalid.\n";
+        return;
+    }
+
+    items.clear();
+    for (size_t i = 0; i < size; ++i) {
+        Item item("", "", "", 0.0, 0.0, std::chrono::system_clock::now(), 0);
+        item.deserialize(file);
+        items.push_back(item);
+    }
+
+    file.close();
+    std::cout << "Debug: Loaded " << items.size() << " items from " << filePath << ".\n";
+}
+
+
+void ItemListingHandler::displayItems(const std::vector<Item>& items) const {
+    for (const auto& item : items) {
+        std::cout << "ID: " << item.getItemID() << ", Name: " << item.getName()
+                  << ", Category: " << item.getCategory()
+                  << ", Starting Bid: " << item.getStartingBid() << "\n";
+    }
 }

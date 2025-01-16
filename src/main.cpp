@@ -1,97 +1,36 @@
-#include "../include/class/Authenticator.h"
-#include "../include/controller/UserController.h"
-#include "../include/dao/UserDataHandler.h"
-#include "../include/ui/WelcomeScreen.h" 
-#include "../include/controller/ItemDataController.h"
-#include "../include/utils/Category.h"
-#include "../include/ui/BidUI.h"
+#include "../include/dao/ItemListingHandler.h"
 #include <iostream>
+#include <chrono>
 
 int main() {
-     // Instantiate BidUI object
-    // BidUI bidUI;
-   // Authenticator authenticator;
-   // authenticator.registerUser();
-  /*  std::string username = "admin1";
+    // Initialize the ItemListingHandler
+    ItemListingHandler itemDAO;
 
-    std::string password = "admin123";
-    std::string fullName = "Alice";
-    std::string phoneNumber = "09012004";
-    std::string email = "tha@example.com";
-    std::string idType = "admin";
-    std::string idNumber = "u-99998";
+    // Add test items to the DAO
+    itemDAO.addItem(Item("Laptop", "Electronics", "High-performance laptop", 1000.0, 50.0, 
+                         std::chrono::system_clock::now() + std::chrono::hours(48), 3));
+    itemDAO.addItem(Item("Book: C++ Primer", "Books", "Comprehensive C++ book", 30.0, 5.0, 
+                         std::chrono::system_clock::now() + std::chrono::hours(24), 3));
+    itemDAO.addItem(Item("Jacket", "Fashion", "Warm winter jacket", 60.0, 10.0, 
+                         std::chrono::system_clock::now() + std::chrono::hours(72), 3));
 
-    User newUser(username, password, fullName, phoneNumber, email, idType, idNumber);
-     UserDataHandler userDAO;
-    if (userDAO.saveUser(newUser)) {
-        std::cout << "User created successfully.\n";
+    // Save items to file
+    std::cout << "\n=== Saving Items to File ===\n";
+    itemDAO.saveItems("data/items.dat");
+    std::cout << "Items saved successfully to data/items.dat\n";
+
+    // Load items from file
+    std::cout << "\n=== Loading Items from File ===\n";
+    itemDAO.loadItems("data/items.dat");
+
+    // Display all loaded items
+    std::cout << "\n=== Displaying All Items ===\n";
+    auto items = itemDAO.getAllItems();
+    if (items.empty()) {
+        std::cout << "No items available.\n";
     } else {
-        std::cout << "Failed to save user.\n";
+        itemDAO.displayItems(items);
     }
-    WelcomeScreen WelcomeScreen;
-    WelcomeScreen.displayMenu();
-     */
 
-    
-
- // Initialize controllers
-    ItemDataController itemController;
-
-    // Load categories
-    std::cout << "Loading categories...\n";
-    Category::loadFromFile("data/categories.dat");
-    Category::listCategories();
-
-    // Create item
-    std::cout << "Creating a test item...\n";
-    std::string name = "Test Item";
-    std::string category = "Electronics";
-    std::string description = "A test description.";
-    double startingBid = 100.0;
-    double bidIncrement = 10.0;
-    auto endTime = std::chrono::system_clock::now() + std::chrono::hours(24);
-
-    itemController.createItemListing(name, category, description, startingBid, bidIncrement, endTime);
-
-    // Save items
-    std::cout << "Saving items to file...\n";
-    itemController.saveListingsToFile("data/items.dat");
-
-    // Verify items in file
-    std::cout << "Reloading items from file...\n";
-    itemController.loadListingsFromFile("data/items.dat");
-    itemController.viewListings();
-
-
-   
-
- 
-   
-    // Call showBidMenu on the object
-/*     std::string userId = "hai0901";  // Example user ID
-    bidUI.showBidMenu(userId);  // Pass userId as argument */
-
-     // Create a test user with hardcoded values
-    
-
-    // Now test authentication
-    /* Authenticator authenticator;
-    std::cout << "\nTesting authentication...\n";
-
-    // Attempt to authenticate with hardcoded credentials
-    if (authenticator.authenticate(username, password)) {
-        std::cout << "Authentication successful. Logged in as " 
-                  << authenticator.getLoggedUser()->getUsername() << "\n";
-    } else {
-        std::cout << "Authentication failed.\n";
-    } 
-    // Hardcoded users for testing
-     UserController userController;
-    WelcomeScreen welcomeScreen;
-    welcomeScreen.displayMenu(); 
-     */
-
-    
-
-    return 0; 
+    return 0;
 }

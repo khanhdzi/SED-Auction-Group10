@@ -1,153 +1,105 @@
-#include "../../include/controller/ItemDataController.h"
-#include "../../include/utils/InputValidator.h"
-#include "../../include/utils/Category.h"
+#include "../include/controller/ItemDataController.h"
+#include "../include/utils/InputValidator.h"
 #include <iostream>
-#include <algorithm> 
-#include <stdexcept>
 
-// Create a new item listing interactively
-void ItemDataController::createItemListing() const {
+void ItemDataController::createItem() {
+    // Get item details from user input
     std::string name = InputValidator::validateString("Enter item name: ");
-    Category::displayCategories();
-    std::string category = InputValidator::validateString("Enter category: ");
-    if (!Category::isValidCategory(category)) {
-        throw std::invalid_argument("Invalid category: " + category);
-    }
-    std::string description = InputValidator::validateString("Enter description: ");
+    std::string category = InputValidator::validateString("Enter item category: ");
+    std::string description = InputValidator::validateString("Enter item description: ");
     double startingBid = InputValidator::validateDouble("Enter starting bid: ", 0.0, 1e6);
     double bidIncrement = InputValidator::validateDouble("Enter bid increment: ", 1.0, 1e5);
-    auto endTime = std::chrono::system_clock::now() + std::chrono::hours(24);
+    auto endTime = std::chrono::system_clock::now() + std::chrono::hours(InputValidator::validateInt("Enter auction duration in hours: ", 1, 168));
 
-    createItemListing(name, category, description, startingBid, bidIncrement, endTime);
-}
-
-// Create a new item listing directly
-void ItemDataController::createItemListing(const std::string& name, const std::string& category, 
-                                           const std::string& description, double startingBid, 
-                                           double bidIncrement, std::chrono::system_clock::time_point endTime) const {
-    if (!Category::isValidCategory(category)) {
-        throw std::invalid_argument("Invalid category: " + category);
-    }
-
-    Item newItem(name, category, description, startingBid, bidIncrement, endTime, 0);
-    ItemDAO.addItem(newItem);
+    // Create new item and add it to the DAO
+    Item newItem(name, category, description, startingBid, bidIncrement, endTime, 3);
+    itemDAO.addItem(newItem);
     std::cout << "Item created successfully: " << name << "\n";
 }
 
-// View all item listings
-void ItemDataController::viewListings() const {
-    auto items = ItemDAO.getAllItems();
-    if (items.empty()) {
-        std::cout << "No items available.\n";
+void ItemDataController::editItem() {
+    // Get item ID from user
+    std::string itemId = InputValidator::validateString("Enter item ID to edit: ");
+
+    // Check if item exists
+    auto itemOpt = itemDAO.findItemById(itemId);
+    if (!itemOpt) {
+        std::cout << "Error: Item not found.\n";
         return;
     }
 
-    for (size_t i = 0; i < items.size(); ++i) {
-        const auto& item = items[i];
-        std::cout << i + 1 << ". " << item.getName() << " | " << item.getCategory()
-                  << " | Starting Bid: $" << item.getStartingBid() << "\n";
-    }
-}
+    // Get updated details from user
+    std::string newDescription = InputValidator::validateString("Enter new description: ");
+    double newStartingBid = InputValidator::validateDouble("Enter new starting bid: ", 0.0, 1e6);
 
-std::optional<Item> ItemListingHandler::findItemById(const std::string& itemId) const {
-    for (const auto& item : items) {
-        if (item.getName() == itemId) { // Assuming item name is the unique identifier
-            return item;
-        }
-    }
-    return std::nullopt;
-}
-
-
-// Save item listings to file
-void ItemDataController::saveListingsToFile(const std::string& filePath) const {
-    ItemDAO.saveItems(filePath);
-}
-
-// Load item listings from file
-void ItemDataController::loadListingsFromFile(const std::string& filePath) {
-    ItemDAO.loadItems(filePath);
-}
-// Search items by category
-std::vector<Item> ItemDataController::searchItemsByCategory(const std::string& category) const {
-    auto items = ItemDAO.getAllItems();
-    std::vector<Item> result;
-
-    for (const auto& item : items) {
-        if (item.getCategory() == category) {
-            result.push_back(item);
-        }
-    }
-
-    if (result.empty()) {
-        std::cout << "No items found in category: " << category << "\n";
-    }
-
-    return result;
-}
-
-// Search items by keyword
-std::vector<Item> ItemDataController::searchItemsByKeyword(const std::string& keyword) const {
-    auto items = ItemDAO.getAllItems();
-    std::vector<Item> result;
-
-    for (const auto& item : items) {
-        if (item.getName().find(keyword) != std::string::npos || 
-            item.getDescription().find(keyword) != std::string::npos) {
-            result.push_back(item);
-        }
-    }
-
-    if (result.empty()) {
-        std::cout << "No items found with keyword: " << keyword << "\n";
-    }
-
-    return result;
-}
-
-// Sort items by criteria
-std::vector<Item> ItemDataController::sortItemsBy(const std::string& criteria) const {
-    auto items = ItemDAO.getAllItems();
-
-    if (criteria == "endTime") {
-        std::sort(items.begin(), items.end(), [](const Item& a, const Item& b) {
-            return a.getEndTime() < b.getEndTime();
-        });
-    } else if (criteria == "startingBid") {
-        std::sort(items.begin(), items.end(), [](const Item& a, const Item& b) {
-            return a.getStartingBid() < b.getStartingBid();
-        });
-    } else if (criteria == "currentBid") {
-        std::sort(items.begin(), items.end(), [](const Item& a, const Item& b) {
-            return a.getCurrentBid() < b.getCurrentBid();
-        });
+    // Update the item
+    if (itemDAO.editItem(itemId, newDescription, newStartingBid)) {
+        std::cout << "Item updated successfully.\n";
     } else {
-        std::cerr << "Invalid sorting criteria.\n";
+        std::cerr << "Error: Failed to update item.\n";
     }
-
-    return items;
 }
 
-bool ItemDataController::editItem(const std::string& itemId, const std::string& newDescription, double newStartingBid) {
-    auto itemOpt = ItemDAO.findItemById(itemId);
-    if (!itemOpt) {
-        std::cerr << "Error: Item not found.\n";
-        return false;
-    }
+void ItemDataController::deleteItem() {
+    // Get item ID from user
+    std::string itemId = InputValidator::validateString("Enter item ID to delete: ");
 
-    auto item = itemOpt.value();
-    item.setStartingBid(newStartingBid);
-    item.setBidIncrement(newStartingBid / 10); // Adjust increment based on new starting bid
-    item.setDescription(newDescription);
-    ItemDAO.updateItem(item);
-    return true;
-}
-
-bool ItemDataController::deleteItem(const std::string& itemId) {
-    if (ItemDAO.deleteItemById(itemId)) {
+    // Attempt to delete the item
+    if (itemDAO.removeItemById(itemId)) {
         std::cout << "Item deleted successfully.\n";
-        return true;
+    } else {
+        std::cerr << "Error: Item not found.\n";
     }
-    std::cerr << "Error: Item not found.\n";
-    return false;
+}
+
+void ItemDataController::viewAllItems() const {
+    auto items = itemDAO.getAllItems();
+    if (items.empty()) {
+        std::cout << "No items available.\n";
+    } else {
+        itemDAO.displayItems(items);
+    }
+}
+
+
+void ItemDataController::searchItemsByCategory() const {
+    std::string category = InputValidator::validateString("Enter category to search: ");
+    auto items = itemDAO.searchItemsByCategory(category);
+    if (items.empty()) {
+        std::cout << "No items found in category: " << category << "\n";
+        return;
+    }
+    itemDAO.displayItems(items);
+}
+
+void ItemDataController::searchItemsByKeyword() const {
+    std::string keyword = InputValidator::validateString("Enter keyword to search: ");
+    auto items = itemDAO.searchItemsByKeyword(keyword);
+    if (items.empty()) {
+        std::cout << "No items found with keyword: " << keyword << "\n";
+        return;
+    }
+    itemDAO.displayItems(items);
+}
+
+void ItemDataController::sortItemsBy() const {
+    std::string criteria = InputValidator::validateString("Enter sorting criteria (startingBid/endTime/currentBid): ");
+    auto items = itemDAO.sortItemsBy(criteria);
+    if (items.empty()) {
+        std::cout << "No items to sort.\n";
+        return;
+    }
+    itemDAO.displayItems(items);
+}
+
+void ItemDataController::saveListingsToFile() const {
+    std::string filePath = InputValidator::validateString("Enter file path to save items: ");
+    itemDAO.saveItems(filePath);
+    std::cout << "Items saved successfully to " << filePath << ".\n";
+}
+
+void ItemDataController::loadListingsFromFile() {
+    std::string filePath = InputValidator::validateString("Enter file path to load items: ");
+    itemDAO.loadItems(filePath);
+    std::cout << "Items loaded successfully from " << filePath << ".\n";
 }

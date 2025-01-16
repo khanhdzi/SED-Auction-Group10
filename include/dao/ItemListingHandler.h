@@ -8,33 +8,22 @@
 
 class ItemListingHandler {
 public:
-    // Add a new item
+    ItemListingHandler(); // Declare constructor
     void addItem(const Item& item);
-
-    // Remove an item by index
-    bool removeItem(int index);
-
-    // Retrieve all items
-    std::vector<Item> getAllItems() const;
-
-    // Find an item by its ID
+    bool removeItemById(const std::string& itemId);
     std::optional<Item> findItemById(const std::string& itemId) const;
-
-    // Update an existing item
-    bool updateItem(const Item& updatedItem);
-
-    // Delete an item by ID
-    bool deleteItemById(const std::string& itemId);
-
-    // Save and load methods
-    void saveItems() const; // Save to default file path
-    void saveItems(const std::string& filePath) const; // Save to specified file path
-    void loadItems(); // Load from default file path
-    void loadItems(const std::string& filePath); // Load from specified file path
+    bool editItem(const std::string& itemId, const std::string& newDescription, double newStartingBid);
+    std::vector<Item> getAllItems() const;
+    std::vector<Item> searchItemsByCategory(const std::string& category) const;
+    std::vector<Item> searchItemsByKeyword(const std::string& keyword) const;
+    std::vector<Item> sortItemsBy(const std::string& criteria) const;
+    void saveItems(const std::string& filePath) const;
+    void loadItems(const std::string& filePath);
+    void displayItems(const std::vector<Item>& items) const;
 
 private:
-    std::vector<Item> items; // Stores all item listings
-    static const std::string defaultFilePath; // Default file path for items
+    std::vector<Item> items;
+    static const std::string defaultFilePath;
 };
 
 #endif // ITEMLISTINGHANDLER_H

@@ -2,7 +2,7 @@ CXX = g++
 CXXFLAGS = -std=c++17 -Iinclude
 
 # List all source files here
-SRC = src/class/Authenticator.cpp src/class/User.cpp src/class/Item.cpp \
+# SRC = src/class/Authenticator.cpp src/class/User.cpp src/class/Item.cpp \
       src/class/Bid.cpp src/class/RatingRecord.cpp src/dao/userDataHandler.cpp \
       src/dao/BidDAO.cpp src/dao/RatingDAO.cpp src/dao/ItemListingHandler.cpp \
       src/controller/UserController.cpp src/controller/ItemDataController.cpp \
@@ -10,8 +10,13 @@ SRC = src/class/Authenticator.cpp src/class/User.cpp src/class/Item.cpp \
       src/ui/WelcomeScreen.cpp src/ui/member/MemberMenu.cpp \
       src/ui/admin/AdminMenu.cpp src/ui/guest/GuestMenu.cpp \
       src/utils/InputValidator.cpp src/utils/utils.cpp src/utils/Category.cpp \
-      src/main.cpp
+      src/main.cpp 
 
+SRC = src/main.cpp \
+      src/class/Item.cpp \
+      src/dao/ItemListingHandler.cpp\
+      src/controller/ItemDataController.cpp src/utils/InputValidator.cpp\
+      src/utils/Category.cpp src/dao/userDataHandler.cpp src/class/User.cpp
 
 OBJ = $(SRC:.cpp=.o)
 TARGET = app
