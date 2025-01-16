@@ -1,80 +1,84 @@
 #include "../../include/class/Bid.h"
-#include <fstream>
-#include <ctime>
+#include <chrono> // Include for std::chrono
+#include <iomanip>
+#include <sstream>
 
-// Constructor Definitions
+// Default constructor
+Bid::Bid() 
+    : itemId(""), bidderId(""), bidAmount(0.0), automaticBidLimit(0.0), bidTime(std::chrono::system_clock::now()) {}
+
+// Parameterized constructors
 Bid::Bid(const std::string& itemId, const std::string& bidderId, double amount)
-    : itemId(itemId), bidderId(bidderId), bidAmount(amount), automaticBidLimit(0) {
-    bidTime = time(nullptr);
-}
+    : itemId(itemId), bidderId(bidderId), bidAmount(amount), automaticBidLimit(0.0), bidTime(std::chrono::system_clock::now()) {}
 
 Bid::Bid(const std::string& itemId, const std::string& bidderId, double amount, double bidLimit)
-    : itemId(itemId), bidderId(bidderId), bidAmount(amount), automaticBidLimit(bidLimit) {
-    bidTime = time(nullptr);
-}
-// Default constructor
-Bid::Bid()
-    : itemId(""), bidderId(""), bidAmount(0.0), automaticBidLimit(0.0) {
-    bidTime = std::time(nullptr); // Set the bid time to the current time
-}
+    : itemId(itemId), bidderId(bidderId), bidAmount(amount), automaticBidLimit(bidLimit), bidTime(std::chrono::system_clock::now()) {}
 
 // Getters
 std::string Bid::getItemId() const { return itemId; }
 std::string Bid::getBidderId() const { return bidderId; }
 double Bid::getBidAmount() const { return bidAmount; }
 double Bid::getAutomaticBidLimit() const { return automaticBidLimit; }
-std::time_t Bid::getBidTime() const { return bidTime; }
+std::chrono::system_clock::time_point Bid::getBidTime() const { return bidTime; }
 
 // Setters
 void Bid::setAutomaticBidLimit(double bidLimit) { automaticBidLimit = bidLimit; }
 
-// Serialization Method
+// Comparison operator
+bool Bid::operator<(const Bid& other) const {
+    return bidAmount < other.bidAmount;
+}
+
+// Serialization
 void Bid::serialize(std::ofstream& file) const {
     size_t length;
 
-    // Write itemId
+    // Serialize itemId
     length = itemId.size();
     file.write(reinterpret_cast<const char*>(&length), sizeof(length));
     file.write(itemId.c_str(), length);
 
-    // Write bidderId
+    // Serialize bidderId
     length = bidderId.size();
     file.write(reinterpret_cast<const char*>(&length), sizeof(length));
     file.write(bidderId.c_str(), length);
 
-    // Write bidAmount
+    // Serialize bidAmount
     file.write(reinterpret_cast<const char*>(&bidAmount), sizeof(bidAmount));
 
-    // Write automaticBidLimit
+    // Serialize automaticBidLimit
     file.write(reinterpret_cast<const char*>(&automaticBidLimit), sizeof(automaticBidLimit));
 
-    // Write bidTime
-    file.write(reinterpret_cast<const char*>(&bidTime), sizeof(bidTime));
+    // Serialize bidTime
+    auto time = std::chrono::system_clock::to_time_t(bidTime);
+    file.write(reinterpret_cast<const char*>(&time), sizeof(time));
 }
 
-// Deserialization Method
+// Deserialization
 void Bid::deserialize(std::ifstream& file) {
     size_t length;
     char buffer[1024];
 
-    // Read itemId
+    // Deserialize itemId
     file.read(reinterpret_cast<char*>(&length), sizeof(length));
     file.read(buffer, length);
     buffer[length] = '\0';
     itemId = buffer;
 
-    // Read bidderId
+    // Deserialize bidderId
     file.read(reinterpret_cast<char*>(&length), sizeof(length));
     file.read(buffer, length);
     buffer[length] = '\0';
     bidderId = buffer;
 
-    // Read bidAmount
+    // Deserialize bidAmount
     file.read(reinterpret_cast<char*>(&bidAmount), sizeof(bidAmount));
 
-    // Read automaticBidLimit
+    // Deserialize automaticBidLimit
     file.read(reinterpret_cast<char*>(&automaticBidLimit), sizeof(automaticBidLimit));
 
-    // Read bidTime
-    file.read(reinterpret_cast<char*>(&bidTime), sizeof(bidTime));
+    // Deserialize bidTime
+    std::time_t time;
+    file.read(reinterpret_cast<char*>(&time), sizeof(time));
+    bidTime = std::chrono::system_clock::from_time_t(time);
 }

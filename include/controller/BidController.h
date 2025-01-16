@@ -2,41 +2,34 @@
 #define BID_CONTROLLER_H
 
 #include "../dao/BidDAO.h"
-#include "../dao/UserDataHandler.h"
-#include "../dao/ItemDAO.h"  // Add ItemDAO header
-#include "../class/Bid.h"
-#include "../class/User.h"
-#include "../class/Item.h"
+#include "../dao/ItemListingHandler.h"
+#include "../class/Authenticator.h"
 #include <string>
 #include <vector>
-#include <iostream>
 
 class BidController {
 public:
-    // Constructor that initializes DAO objects
-    BidController();
+    // Place a bid
+    void placeBid(const std::string& itemId, double amount, double bidLimit = 0.0);
 
-    // Function to place a bid for an item by a user
-    bool placeBid(const std::string& itemId, const std::string& bidderId, double amount);
+    // View all bids for a specific item
+    void viewBidsForItem(const std::string& itemId) const;
 
-    // Function to search for items by name, category, or credit point range
-    std::vector<Item> searchItems(const std::string& name = "", const std::string& category = "",
-                                  double minPoints = 0, double maxPoints = 1000);
+    // View active bids placed by the logged-in user
+    void viewUserBids() const;
 
-    // Function to view details of a specific item
-    void viewItemDetails(const std::string& itemId);
+    // Automatically handle bidding up to the bid limit
+    void handleAutomaticBidding(const std::string& itemId);
 
 private:
-    // Function to validate bid: checks if user has enough credit points for the bid
-    bool validateBid(const std::string& itemId, const std::string& bidderId, double amount);
+    BidDAO bidDAO;               // Handles bid storage and retrieval
+    ItemListingHandler itemDAO;  // Handles item storage and retrieval
 
-    // Check if the user has enough credit points for all active bids
-    bool hasSufficientCreditForAllBids(const std::string& bidderId, double bidAmount);
+    // Helper to resolve automatic bid limit conflicts
+    bool resolveAutomaticBidLimitConflict(const std::string& itemId, double bidLimit) const;
 
-    // DAO objects for accessing data
-    BidDAO bidDAO;
-    UserDataHandler userDAO;
-    ItemDAO itemDAO;  // Add ItemDAO declaration
+    // Display bid details
+    void displayBids(const std::vector<Bid>& bids) const;
 };
 
-#endif
+#endif // BID_CONTROLLER_H
