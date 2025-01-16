@@ -3,7 +3,9 @@
 
 #include "../../class/Authenticator.h"
 #include "../../dao/ItemListingHandler.h"
-
+#include "../../../include/controller/BidController.h"
+#include "../../../include/controller/ItemDataController.h"
+#include "../../../include/utils/InputValidator.h"
 #include <string>
 
 // Forward declaration to avoid circular dependency

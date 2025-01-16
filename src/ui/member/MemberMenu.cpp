@@ -2,6 +2,9 @@
 #include "../../../include/controller/UserController.h"
 #include "../../../include/class/Authenticator.h"
 #include "../../../include/utils/utils.h"
+#include "../../../include/controller/BidController.h"
+#include "../../../include/controller/ItemDataController.h"
+#include "../../../include/utils/InputValidator.h"
 #include <iostream>
 #include <limits>
 
@@ -144,72 +147,116 @@ void MemberMenu::editProfile(UserController& userController) {
 
 
 
-
 // Buyer Features Menu
 void MemberMenu::displayBuyerFeaturesMenu() {
+    BidController bidController;               // Instance of BidController
+    ItemDataController itemController;         // Instance of ItemDataController
     int choice;
+
     do {
         std::cout << "=== Buyer Features ===\n";
         std::cout << "1. Browse Items\n";
-        std::cout << "2. Place Bids\n";
-        std::cout << "3. Return to Main Menu\n";
+        std::cout << "2. View Bids for an Item\n";
+        std::cout << "3. Place a Bid\n";
+        std::cout << "4. View My Active Bids\n";
+        std::cout << "5. Return to Main Menu\n";
         std::cout << "Enter your choice: ";
         std::cin >> choice;
 
         if (std::cin.fail()) {
-            std::cin.clear();
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            std::cout << "Invalid input. Please enter a number between 1 and 3.\n";
+            std::cin.clear(); // Clear error flag
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Discard invalid input
+            std::cout << "Invalid input. Please enter a number between 1 and 5.\n";
             continue;
         }
 
+        Utils::clearScreen();
+
         switch (choice) {
-            case 1:
-             
+            case 1: {
+                // Browse items
+                itemController.viewListings();
                 break;
-            case 2:
-             
+            }
+            case 2: {
+                // View bids for a specific item
+                std::string itemId = InputValidator::validateString("Enter the Item ID to view bids: ");
+                bidController.viewBidsForItem(itemId);
                 break;
-            case 3:
-                Utils::clearScreen();
+            }
+            case 3: {
+                // Place a bid
+                std::string itemId = InputValidator::validateString("Enter the Item ID to bid on: ");
+                double bidAmount = InputValidator::validateDouble("Enter your bid amount: ", 0.01, 1e6);
+                double bidLimit = InputValidator::validateDouble("Enter your automatic bid limit (0 for none): ", 0.0, 1e6);
+                bidController.placeBid(itemId, bidAmount, bidLimit);
+                break;
+            }
+            case 4: {
+                // View active bids
+                bidController.viewUserBids();
+                break;
+            }
+            case 5: {
+                // Return to Main Menu
                 return;
-            default:
+            }
+            default: {
                 std::cout << "Invalid choice. Please try again.\n";
                 break;
+            }
         }
+
+        std::cout << "\nPress Enter to return to the Buyer Features menu...";
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        std::cin.get();
+
     } while (true);
 }
 
 // Seller Features Menu
 void MemberMenu::displaySellerFeaturesMenu() {
+    ItemDataController itemController; // Create the controller instance
     int choice;
     do {
         std::cout << "=== Seller Features ===\n";
         std::cout << "1. Create Listing\n";
         std::cout << "2. Edit Listing\n";
         std::cout << "3. Remove Listing\n";
-        std::cout << "4. Return to Main Menu\n";
+        std::cout << "4. View Listings\n"; // Optional: Add to allow viewing
+        std::cout << "5. Return to Main Menu\n";
         std::cout << "Enter your choice: ";
         std::cin >> choice;
 
         if (std::cin.fail()) {
             std::cin.clear();
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            std::cout << "Invalid input. Please enter a number between 1 and 4.\n";
+            std::cout << "Invalid input. Please enter a number between 1 and 5.\n";
             continue;
         }
 
         switch (choice) {
             case 1:
-              
+                Utils::clearScreen();
+                try {
+                    itemController.createItemListing();
+                } catch (const std::exception& e) {
+                    std::cout << "Error: " << e.what() << "\n";
+                }
                 break;
             case 2:
-           
+                Utils::clearScreen();
+                std::cout << "Feature not implemented yet: Edit Listing.\n";
                 break;
             case 3:
-           
+                Utils::clearScreen();
+                std::cout << "Feature not implemented yet: Remove Listing.\n";
                 break;
             case 4:
+                Utils::clearScreen();
+                itemController.viewListings();
+                break;
+            case 5:
                 Utils::clearScreen();
                 return;
             default:
@@ -218,5 +265,6 @@ void MemberMenu::displaySellerFeaturesMenu() {
         }
     } while (true);
 }
+
 
 
