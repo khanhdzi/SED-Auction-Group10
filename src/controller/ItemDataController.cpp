@@ -47,12 +47,22 @@ void ItemDataController::viewListings() const {
     }
 }
 
+std::optional<Item> ItemListingHandler::findItemById(const std::string& itemId) const {
+    for (const auto& item : items) {
+        if (item.getName() == itemId) { // Assuming item name is the unique identifier
+            return item;
+        }
+    }
+    return std::nullopt;
+}
+
+
 // Save item listings to file
 void ItemDataController::saveListingsToFile(const std::string& filePath) const {
-    ItemDAO.saveItems();
+    ItemDAO.saveItems(filePath);
 }
 
 // Load item listings from file
 void ItemDataController::loadListingsFromFile(const std::string& filePath) {
-    ItemDAO.loadItems();
+    ItemDAO.loadItems(filePath);
 }

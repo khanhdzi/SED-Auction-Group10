@@ -5,11 +5,9 @@
 
 const std::string ItemListingHandler::defaultFilePath = "data/items.dat";
 
-
-// Add a new item to the listing
+// Add a new item
 void ItemListingHandler::addItem(const Item& item) {
     items.push_back(item);
-    std::cout << "Item added successfully.\n";
 }
 
 // Remove an item by index
@@ -19,7 +17,6 @@ bool ItemListingHandler::removeItem(int index) {
         return false;
     }
     items.erase(items.begin() + index);
-    std::cout << "Item removed successfully.\n";
     return true;
 }
 
@@ -30,10 +27,14 @@ std::vector<Item> ItemListingHandler::getAllItems() const {
 
 // Save items to the default file path
 void ItemListingHandler::saveItems() const {
-    // Ensure the directory exists
-    std::filesystem::create_directories("data");
+    saveItems(defaultFilePath);
+}
 
-    std::ofstream file(defaultFilePath, std::ios::binary);
+// Save items to a specified file path
+void ItemListingHandler::saveItems(const std::string& filePath) const {
+    std::filesystem::create_directories("data");
+    std::ofstream file(filePath, std::ios::binary);
+
     if (!file.is_open()) {
         std::cerr << "Error: Failed to open file for saving items.\n";
         return;
@@ -47,12 +48,18 @@ void ItemListingHandler::saveItems() const {
     }
 
     file.close();
-    std::cout << "Items saved successfully to " << defaultFilePath << ".\n";
+    std::cout << "Items saved successfully to " << filePath << ".\n";
 }
 
 // Load items from the default file path
 void ItemListingHandler::loadItems() {
-    std::ifstream file(defaultFilePath, std::ios::binary);
+    loadItems(defaultFilePath);
+}
+
+// Load items from a specified file path
+void ItemListingHandler::loadItems(const std::string& filePath) {
+    std::ifstream file(filePath, std::ios::binary);
+
     if (!file.is_open()) {
         std::cerr << "Error: Failed to open file for loading items.\n";
         return;
@@ -69,5 +76,5 @@ void ItemListingHandler::loadItems() {
     }
 
     file.close();
-    std::cout << "Items loaded successfully from " << defaultFilePath << ".\n";
+    std::cout << "Items loaded successfully from " << filePath << ".\n";
 }

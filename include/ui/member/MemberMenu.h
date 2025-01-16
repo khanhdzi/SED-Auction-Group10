@@ -2,6 +2,8 @@
 #define MEMBER_MENU_H
 
 #include "../../class/Authenticator.h"
+#include "../../dao/ItemListingHandler.h"
+
 #include <string>
 
 // Forward declaration to avoid circular dependency
@@ -30,6 +32,7 @@ public:
 
 private:
     Authenticator authenticator; // To manage authentication if needed
+    ItemListingHandler ItemDAO;
 };
 
 #endif // MEMBER_MENU_H

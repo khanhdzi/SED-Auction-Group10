@@ -4,6 +4,9 @@
 #include <string>
 #include <ctime>
 #include <fstream>
+#include <chrono>
+#include <iomanip>
+#include <sstream>
 
 class Bid {
 public:
@@ -19,21 +22,24 @@ public:
     std::string getBidderId() const;
     double getBidAmount() const;
     double getAutomaticBidLimit() const;
-    std::time_t getBidTime() const;
+    std::chrono::system_clock::time_point getBidTime() const;
 
     // Setters
     void setAutomaticBidLimit(double bidLimit);
+
+    // Comparison operator (for sorting or finding highest bid)
+    bool operator<(const Bid& other) const;
 
     // Serialization
     void serialize(std::ofstream& file) const;
     void deserialize(std::ifstream& file);
 
 private:
-    std::string itemId;
-    std::string bidderId;
-    double bidAmount;
-    double automaticBidLimit;
-    std::time_t bidTime;  // Stores the time of bid placement
+    std::string itemId;             // ID of the item being bid on
+    std::string bidderId;           // ID of the bidder
+    double bidAmount;               // Amount of the bid
+    double automaticBidLimit;       // Maximum bid amount for automatic bidding
+    std::chrono::system_clock::time_point bidTime;  // Time of bid placement
 };
 
-#endif
+#endif // BID_H

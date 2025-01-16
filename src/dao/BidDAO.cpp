@@ -1,47 +1,34 @@
 #include "../../include/dao/BidDAO.h"
 #include <fstream>
 #include <iostream>
+#include <algorithm>
+#include <chrono>
 
 const std::string BidDAO::FILE_PATH = "data/bids.dat";
 
-// Save a bid to the binary file
+// Save a bid to the file
 bool BidDAO::saveBid(const Bid& bid) {
     std::ofstream file(FILE_PATH, std::ios::binary | std::ios::app);
     if (!file.is_open()) {
-        std::cerr << "Failed to open file for saving bid.\n";
+        std::cerr << "Error: Could not open file for saving bid.\n";
         return false;
     }
+
     bid.serialize(file);
     file.close();
     return true;
 }
 
-bool BidDAO::placeBid(const Bid& bid) {
-    // Insert the bid into the database or collection logic here
-    // If successful:
-    return true;
-    // If something goes wrong:
-    return false;
-}
-
-std::vector<Bid> BidDAO::getActiveBidsByUser(const std::string& bidderId) {
-    std::vector<Bid> activeBids;
-    // Logic to fetch active bids for the user
-    // Example: Iterate through a list of all bids and add the user's active bids
-    return activeBids;
-}
-
-
-// Get all bids from the binary file
-std::vector<Bid> BidDAO::getAllBids() {
+// Retrieve all bids from the file
+std::vector<Bid> BidDAO::getAllBids() const {
     std::vector<Bid> bids;
     std::ifstream file(FILE_PATH, std::ios::binary);
+
     if (!file.is_open()) {
-        std::cerr << "Failed to open file for reading bids.\n";
+        std::cerr << "Error: Could not open file for reading bids.\n";
         return bids;
     }
 
-    // Read bids from the file until the end
     while (file.peek() != EOF) {
         Bid bid;
         bid.deserialize(file);
@@ -53,15 +40,46 @@ std::vector<Bid> BidDAO::getAllBids() {
 }
 
 // Find bids by item ID
-std::vector<Bid> BidDAO::findBidsByItemId(const std::string& itemId) {
-    std::vector<Bid> allBids = getAllBids();
-    std::vector<Bid> matchingBids;
+std::vector<Bid> BidDAO::findBidsByItemId(const std::string& itemId) const {
+    auto allBids = getAllBids();
+    std::vector<Bid> result;
 
-    for (const auto& bid : allBids) {
-        if (bid.getItemId() == itemId) {
-            matchingBids.push_back(bid);
-        }
+    std::copy_if(allBids.begin(), allBids.end(), std::back_inserter(result), [&](const Bid& bid) {
+        return bid.getItemId() == itemId;
+    });
+
+    return result;
+}
+
+// Get active bids placed by a user
+std::vector<Bid> BidDAO::getActiveBidsByUser(const std::string& bidderId) const {
+    auto allBids = getAllBids();
+    std::vector<Bid> result;
+
+    std::copy_if(allBids.begin(), allBids.end(), std::back_inserter(result), [&](const Bid& bid) {
+        return bid.getBidderId() == bidderId;
+    });
+
+    return result;
+}
+bool BidDAO::placeBid(const Bid& bid) {
+    auto highestBid = findBidsByItemId(bid.getItemId());
+    if (!highestBid.empty() && bid.getBidAmount() <= highestBid.back().getBidAmount()) {
+        std::cerr << "Error: Bid amount must be higher than the current highest bid.\n";
+        return false;
+    }
+    return saveBid(bid);
+}
+
+std::optional<Bid> BidDAO::getHighestBid(const std::string& itemId) const {
+    auto bids = findBidsByItemId(itemId);
+    if (bids.empty()) {
+        return std::nullopt;
     }
 
-    return matchingBids;
+    auto highestBid = *std::max_element(bids.begin(), bids.end(), [](const Bid& a, const Bid& b) {
+        return a.getBidAmount() < b.getBidAmount();
+    });
+
+    return highestBid;
 }

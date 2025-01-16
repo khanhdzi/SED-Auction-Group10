@@ -3,22 +3,23 @@
 
 #include "../class/Bid.h"
 #include <vector>
+#include <string>
 #include <optional>
 
 class BidDAO {
 private:
-    static const std::string FILE_PATH; // File path for storing bids
+    static const std::string FILE_PATH;
 
 public:
-    bool saveBid(const Bid& bid);               // Save a bid to the file
-    std::vector<Bid> getAllBids();             // Retrieve all bids from the file
-    std::vector<Bid> findBidsByItemId(const std::string& itemId); // Find bids by item ID
-    static const std::string& getFilePath() { return FILE_PATH; } // Access file path
-    // Method to place a bid
-    bool placeBid(const Bid& bid);
+    bool saveBid(const Bid& bid); // Save a bid
+    std::vector<Bid> getAllBids() const; // Retrieve all bids
+    std::vector<Bid> findBidsByItemId(const std::string& itemId) const; // Find bids by item ID
+    std::vector<Bid> getActiveBidsByUser(const std::string& bidderId) const; // Get active bids by a user
 
-    // Method to get active bids by a user
-    std::vector<Bid> getActiveBidsByUser(const std::string& bidderId);
+    // Get the highest bid for an item
+    std::optional<Bid> getHighestBid(const std::string& itemId) const;
+
+    bool placeBid(const Bid& bid); // Place a bid
 };
 
-#endif
+#endif // BID_DAO_H
