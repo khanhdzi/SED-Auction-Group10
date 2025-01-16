@@ -11,6 +11,7 @@ public:
     static bool removeCategory(const std::string& category);
     static bool isValidCategory(const std::string& category);
     static void listCategories();
+    static void displayCategories();
     
     // File Operations
     static void loadFromFile(const std::string& filePath);

@@ -33,6 +33,7 @@ public:
     void setStartingBid(double newStartingBid);
     void setBidIncrement(double newBidIncrement);
     void setCurrentBid(double bid, const std::string& bidder);
+    void setDescription(const std::string& newDescription);
     void closeAuction();
 
     // Auction Logic

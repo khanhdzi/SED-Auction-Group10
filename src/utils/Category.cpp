@@ -47,6 +47,8 @@ void Category::listCategories() {
     }
 }
 
+
+// Load categories from a file
 // Load categories from a file
 void Category::loadFromFile(const std::string& filePath) {
     std::ifstream file(filePath);
@@ -55,7 +57,9 @@ void Category::loadFromFile(const std::string& filePath) {
         return;
     }
 
+    // Clear existing categories to avoid duplicates
     categories.clear();
+
     std::string category;
     while (std::getline(file, category)) {
         if (!category.empty()) {
@@ -66,6 +70,7 @@ void Category::loadFromFile(const std::string& filePath) {
     file.close();
     std::cout << "Categories loaded successfully from " << filePath << ".\n";
 }
+
 
 // Save categories to a file
 void Category::saveToFile(const std::string& filePath) {
@@ -84,4 +89,29 @@ void Category::saveToFile(const std::string& filePath) {
 
     file.close();
     std::cout << "Categories saved successfully to " << filePath << ".\n";
+}
+
+void Category::displayCategories() {
+    std::cout << "=====================================\n";
+    std::cout << "        Loading Categories...        \n";
+    std::cout << "=====================================\n";
+    
+    // Load categories from file
+    Category::loadFromFile("data/categories.dat");
+
+    // Display the loaded categories
+    std::cout << "\nAvailable Categories:\n";
+    std::cout << "-------------------------------------\n";
+    
+    // Check if categories exist and display them
+    if (Category::categories.empty()) {
+        std::cout << "No categories available.\n";
+    } else {
+        int index = 1;
+        for (const auto& category : Category::categories) {
+            std::cout << index++ << ". " << category << "\n";
+        }
+    }
+
+    std::cout << "=====================================\n";
 }

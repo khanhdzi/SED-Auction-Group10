@@ -35,6 +35,10 @@ int Item::getMinBuyerRating() const { return minBuyerRating; }
 std::string Item::getStatus() const { return status; }
 
 // Setters
+void Item::setDescription(const std::string& newDescription) {
+    description = newDescription;
+}
+
 void Item::setStartingBid(double newStartingBid) { 
     if (status == "active" && currentBid == startingBid) {
         startingBid = newStartingBid; 
@@ -78,39 +82,48 @@ bool Item::placeBid(double bid, const std::string& bidder) {
 
 // Serialization
 void Item::serialize(std::ofstream& file) const {
+    if (!file.is_open()) {
+        std::cerr << "Error: File is not open for serialization.\n";
+        return;
+    }
+
     size_t length;
 
-    // Write name
+    // Serialize name
     length = name.size();
     file.write(reinterpret_cast<const char*>(&length), sizeof(length));
     file.write(name.c_str(), length);
+    std::cout << "Serialized name: " << name << "\n";
 
-    // Write category
+    // Serialize category
     length = category.size();
     file.write(reinterpret_cast<const char*>(&length), sizeof(length));
     file.write(category.c_str(), length);
+    std::cout << "Serialized category: " << category << "\n";
 
-    // Write description
+    // Serialize description
     length = description.size();
     file.write(reinterpret_cast<const char*>(&length), sizeof(length));
     file.write(description.c_str(), length);
+    std::cout << "Serialized description: " << description << "\n";
 
-    // Write other fields
+    // Serialize other fields
     file.write(reinterpret_cast<const char*>(&startingBid), sizeof(startingBid));
     file.write(reinterpret_cast<const char*>(&bidIncrement), sizeof(bidIncrement));
     file.write(reinterpret_cast<const char*>(&currentBid), sizeof(currentBid));
 
-    // Write timestamps
+    // Serialize timestamps
     auto creationTimeT = std::chrono::system_clock::to_time_t(creationTime);
     auto endTimeT = std::chrono::system_clock::to_time_t(endTime);
     file.write(reinterpret_cast<const char*>(&creationTimeT), sizeof(creationTimeT));
     file.write(reinterpret_cast<const char*>(&endTimeT), sizeof(endTimeT));
 
-    // Write ratings and status
+    // Serialize minBuyerRating and status
     file.write(reinterpret_cast<const char*>(&minBuyerRating), sizeof(minBuyerRating));
     length = status.size();
     file.write(reinterpret_cast<const char*>(&length), sizeof(length));
     file.write(status.c_str(), length);
+    std::cout << "Serialized status: " << status << "\n";
 }
 
 void Item::deserialize(std::ifstream& file) {
