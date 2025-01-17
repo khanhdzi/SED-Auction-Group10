@@ -246,7 +246,7 @@ void MemberMenu::displayBuyerFeaturesMenu() {
                 break;
             }
             case 3: {
-                std::cout << "Debug: Placing a bid.\n";
+                itemController.viewAllItems();
                 bidController.placeBid();
             
                 break;

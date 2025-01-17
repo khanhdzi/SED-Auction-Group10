@@ -17,10 +17,10 @@ void WelcomeScreen::displayWelcomeMessage() {
     std::cout << "AUCTION APPLICATION\n";
     std::cout << "Instructor: Dr Ling Huo Chong\n";
     std::cout << "Group: Group No.\n";
-    std::cout << "XXXXXXX, Student Name\n";
-    std::cout << "XXXXXXX, Student Name\n";
-    std::cout << "XXXXXXX, Student Name\n";
-    std::cout << "XXXXXXX, Student Name\n";
+    std::cout << "s3975798, Nguyen Pham Tien Hai\n";
+    std::cout << "s3980883, Nguyen Thach Khanh Dzi\n";
+    std::cout << "s3972939, Nguyen Tan Dung\n";
+    std::cout << "s3929376, Le Vo Nhat Minh\n";
     std::cout << "--------------------------------------------\n";
     std::cout << "Use the app as:\n";
     std::cout << "1. Guest\n";

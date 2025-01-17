@@ -95,7 +95,10 @@ void UserController::displayUserInfo(const std::string& username) {
                       << "Phone: " << user.getPhoneNumber() << "\n"
                       << "Email: " << user.getEmail() << "\n"
                       << "ID Type: " << user.getIdType() << "\n"
-                      << "ID Number: " << user.getIdNumber() << "\n";
+                      << "ID Number: " << user.getIdNumber() << "\n"                      
+                      << "Seller Rating: " << user.getSellerRating() << "\n"
+                      << "Buyer Rating: " << user.getBuyerRating() << "\n"
+                      << "Credit Points: " << user.getCreditPoints() << "\n";
             return;
         }
     }
