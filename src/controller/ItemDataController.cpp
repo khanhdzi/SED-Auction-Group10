@@ -1,9 +1,16 @@
 #include "../include/controller/ItemDataController.h"
+#include "../../include/class/Authenticator.h"
 #include "../include/utils/InputValidator.h"
 #include <iostream>
 
 void ItemDataController::createItem() {
-    // Get item details from user input
+    if (!Authenticator::isLoggedIn()) {
+        std::cerr << "Error: You must be logged in to create an item.\n";
+        return;
+    }
+
+    User* seller = Authenticator::getLoggedUser();
+
     std::string name = InputValidator::validateString("Enter item name: ");
     std::string category = InputValidator::validateString("Enter item category: ");
     std::string description = InputValidator::validateString("Enter item description: ");
@@ -11,11 +18,13 @@ void ItemDataController::createItem() {
     double bidIncrement = InputValidator::validateDouble("Enter bid increment: ", 1.0, 1e5);
     auto endTime = std::chrono::system_clock::now() + std::chrono::hours(InputValidator::validateInt("Enter auction duration in hours: ", 1, 168));
 
-    // Create new item and add it to the DAO
-    Item newItem(name, category, description, startingBid, bidIncrement, endTime, 3);
+    // Create new item and associate with seller
+    Item newItem(name, category, description, startingBid, bidIncrement, endTime, 3, seller->getUsername());
     itemDAO.addItem(newItem);
-    std::cout << "Item created successfully: " << name << "\n";
+
+    std::cout << "Item created successfully.\n";
 }
+
 
 void ItemDataController::editItem() {
     // Get item ID from user
@@ -100,4 +109,9 @@ void ItemDataController::saveListingsToFile() const {
 void ItemDataController::loadListingsFromFile() {
     itemDAO.loadItems(defaultFilePath);
     std::cout << "Items loaded successfully from " << defaultFilePath << ".\n";
+}
+
+bool ItemDataController::isItemIDExist(const std::string& itemID) const {
+    auto item = itemDAO.findItemById(itemID);
+    return item.has_value();
 }

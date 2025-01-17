@@ -2,25 +2,29 @@
 #include <iostream>
 #include <iomanip>
 #include <sstream>
+#include <random>  
+#include <sstream>
 
 // Static Utility for Generating Item IDs
 std::string Item::generateItemID() {
-    static std::mt19937 rng(std::random_device{}());
-    static std::uniform_int_distribution<int> dist(1000, 9999);
+    static std::mt19937 rng(std::random_device{}());                  // Random number generator
+    static std::uniform_int_distribution<int> dist(1000, 9999);      // Range of IDs
 
     std::ostringstream oss;
-    oss << "I-" << dist(rng);
+    oss << "I-" << dist(rng);                                        // Generate ID in "I-XXXX" format
     return oss.str();
 }
 
 // Constructor
 Item::Item(std::string name, std::string category, std::string description, 
            double startingBid, double bidIncrement, 
-           std::chrono::system_clock::time_point endTime, int minBuyerRating)
+           std::chrono::system_clock::time_point endTime, int minBuyerRating, 
+           const std::string& sellerID)
     : itemID(generateItemID()), name(name), category(category), description(description),
       startingBid(startingBid), bidIncrement(bidIncrement), 
       currentBid(startingBid), currentBidder(""), endTime(endTime), 
-      minBuyerRating(minBuyerRating), status("active") {}
+      minBuyerRating(minBuyerRating), status("active"), sellerID(sellerID) {}
+
 
 // Getters
 std::string Item::getItemID() const { return itemID; }
@@ -34,6 +38,9 @@ std::string Item::getCurrentBidder() const { return currentBidder; }
 std::chrono::system_clock::time_point Item::getEndTime() const { return endTime; }
 int Item::getMinBuyerRating() const { return minBuyerRating; }
 std::string Item::getStatus() const { return status; }
+std::string Item::getSellerID() const {
+    return sellerID;
+}
 
 // Setters
 void Item::setCurrentBid(double bid, const std::string& bidder) {
@@ -81,7 +88,7 @@ void Item::serialize(std::ofstream& file) const {
     file.write(reinterpret_cast<const char*>(&bidIncrement), sizeof(bidIncrement));
     file.write(reinterpret_cast<const char*>(&currentBid), sizeof(currentBid));
 
-    std::time_t endTimeT = std::chrono::system_clock::to_time_t(endTime);
+    auto endTimeT = std::chrono::system_clock::to_time_t(endTime);
     file.write(reinterpret_cast<const char*>(&endTimeT), sizeof(endTimeT));
 
     file.write(reinterpret_cast<const char*>(&minBuyerRating), sizeof(minBuyerRating));
@@ -89,6 +96,10 @@ void Item::serialize(std::ofstream& file) const {
     length = status.size();
     file.write(reinterpret_cast<const char*>(&length), sizeof(length));
     file.write(status.c_str(), length);
+
+    length = sellerID.size();
+    file.write(reinterpret_cast<const char*>(&length), sizeof(length));
+    file.write(sellerID.c_str(), length);
 }
 
 // Deserialization
@@ -130,4 +141,9 @@ void Item::deserialize(std::ifstream& file) {
     file.read(buffer, length);
     buffer[length] = '\0';
     status = buffer;
+
+    file.read(reinterpret_cast<char*>(&length), sizeof(length));
+    file.read(buffer, length);
+    buffer[length] = '\0';
+    sellerID = buffer;
 }

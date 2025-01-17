@@ -61,7 +61,9 @@ void WelcomeScreen::displayMenu() {
                         displayMenu(); // Show WelcomeScreen again
                     }
                 } else {
+                   
                     Utils::clearScreen(); // Clear screen for failed login
+                    std::cout << "Login Failed\n";
                     displayMenu(); // Show WelcomeScreen again
                 }
                 break;
@@ -82,7 +84,9 @@ void WelcomeScreen::displayMenu() {
                         displayMenu(); // Show WelcomeScreen again
                     }
                 } else {
+                    
                     Utils::clearScreen(); // Clear screen for failed login
+                    std::cout << "Login Failed\n";
                     displayMenu(); // Show WelcomeScreen again
                 }
                 break;

@@ -8,7 +8,7 @@
 
 class ItemListingHandler {
 public:
-    ItemListingHandler(); // Declare constructor
+    ItemListingHandler();
     void addItem(const Item& item);
     bool removeItemById(const std::string& itemId);
     std::optional<Item> findItemById(const std::string& itemId) const;

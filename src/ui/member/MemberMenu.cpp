@@ -2,12 +2,12 @@
 #include "../../../include/controller/UserController.h"
 #include "../../../include/class/Authenticator.h"
 #include "../../../include/utils/utils.h"
+#include "../../../include/utils/Category.h"
 #include "../../../include/controller/BidController.h"
 #include "../../../include/controller/ItemDataController.h"
 #include "../../../include/utils/InputValidator.h"
 #include <iostream>
 #include <limits>
-
 
 void MemberMenu::displayDashboard() {
     Utils::clearScreen();
@@ -32,10 +32,11 @@ void MemberMenu::displayDashboard() {
     std::cout << "2   | Road Bike      | Vehicles     | 300         | 310            | 23/01/2025 17:30\n";
     std::cout << "====================================\n\n";
 }
-// Display Main Member Menu
+
 void MemberMenu::displayMenu() {
+    std::cout << "Debug: Entering Member Menu\n";
+
     int choice;
-    displayDashboard(); // Show dashboard before the menu
 
     do {
         std::cout << "=== Member Menu ===\n";
@@ -53,10 +54,32 @@ void MemberMenu::displayMenu() {
             continue;
         }
 
-        handleSelection(choice);
+        std::cout << "Debug: User selected " << choice << "\n";
 
-    } while (choice != 4); // Exit when user logs out
+        switch (choice) {
+            case 1:
+                std::cout << "General Features Selected\n";
+                break;
+            case 2:
+                std::cout << "Buyer Features Selected\n";
+                break;
+            case 3:
+                std::cout << "Seller Features Selected\n";
+                break;
+            case 4:
+                std::cout << "Logging out...\n";
+                break;
+            default:
+                std::cout << "Invalid choice. Please try again.\n";
+                break;
+        }
+    } while (choice != 4);
+
+    std::cout << "Debug: Exiting Member Menu\n";
 }
+
+
+
 
 // Handle Menu Selections
 void MemberMenu::handleSelection(int choice) {
@@ -145,21 +168,9 @@ void MemberMenu::editProfile(UserController& userController) {
         std::cin.get(); // Wait for Enter key
     }
 }
-
-
-
-// Buyer Features Menu
 void MemberMenu::displayBuyerFeaturesMenu() {
     BidController bidController;
     ItemDataController itemController;
-
-    // Ensure items are loaded from the file
-    try {
-        itemController.loadListingsFromFile("data/items.dat");
-    } catch (const std::exception& e) {
-        std::cerr << "Error loading items from file: " << e.what() << "\n";
-        return; // Exit the menu if items cannot be loaded
-    }
 
     int choice;
 
@@ -171,14 +182,16 @@ void MemberMenu::displayBuyerFeaturesMenu() {
         std::cout << "4. View My Active Bids\n";
         std::cout << "5. Search Items by Category or Keyword\n";
         std::cout << "6. Sort Items\n";
-        std::cout << "7. Return to Main Menu\n";
+        std::cout << "7. Finalize Auction\n";
+        std::cout << "8. Top-Up Credit Points\n";
+        std::cout << "9. Return to Main Menu\n";
         std::cout << "Enter your choice: ";
         std::cin >> choice;
 
         if (std::cin.fail()) {
             std::cin.clear();
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            std::cout << "Invalid input. Please enter a number between 1 and 7.\n";
+            std::cout << "Invalid input. Please enter a number between 1 and 9.\n";
             continue;
         }
 
@@ -186,39 +199,22 @@ void MemberMenu::displayBuyerFeaturesMenu() {
 
         switch (choice) {
             case 1: {
-                // Browse items
-                itemController.viewListings();
+                itemController.viewAllItems();
                 break;
             }
             case 2: {
-                // View bids for a specific item
-                std::string itemId = InputValidator::validateString("Enter the Item ID to view bids: ");
-                try {
-                    bidController.viewBidsForItem(itemId);
-                } catch (const std::exception& e) {
-                    std::cerr << "Error: " << e.what() << "\n";
-                }
+                bidController.viewBidsForItem();
                 break;
             }
             case 3: {
-                // Place a bid
-                std::string itemId = InputValidator::validateString("Enter the Item ID to bid on: ");
-                double bidAmount = InputValidator::validateDouble("Enter your bid amount: ", 0.01, 1e6);
-                double bidLimit = InputValidator::validateDouble("Enter your automatic bid limit (0 for none): ", 0.0, 1e6);
-                try {
-                    bidController.placeBid(itemId, bidAmount, bidLimit);
-                } catch (const std::exception& e) {
-                    std::cerr << "Error: " << e.what() << "\n";
-                }
+                bidController.placeBid();
                 break;
             }
             case 4: {
-                // View active bids
                 bidController.viewUserBids();
                 break;
             }
             case 5: {
-                // Search Items by Category or Keyword
                 std::cout << "Search Items:\n";
                 std::cout << "1. By Category\n";
                 std::cout << "2. By Keyword\n";
@@ -227,74 +223,33 @@ void MemberMenu::displayBuyerFeaturesMenu() {
                 std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
                 if (searchChoice == 1) {
-              
                     std::cout << "\nAvailable Categories:\n";
-                    Category::listCategories();
-
-                    std::string category = InputValidator::validateString("Enter category: ");
-                    if (!Category::isValidCategory(category)) {
-                        std::cerr << "Invalid category. Please select a valid category.\n";
-                        break;
-                    }
-
-                    auto results = itemController.searchItemsByCategory(category);
-                    if (results.empty()) {
-                        std::cout << "No items found in category: " << category << "\n";
-                    } else {
-                        for (const auto& item : results) {
-                            std::cout << "Item: " << item.getName() << " | Category: " << item.getCategory()
-                                      << " | Starting Bid: $" << item.getStartingBid() << "\n";
-                        }
-                    }
+                    Category::displayCategories();
+                    itemController.searchItemsByCategory(); // Handles category search internally
                 } else if (searchChoice == 2) {
-                    std::string keyword = InputValidator::validateString("Enter keyword: ");
-                    auto results = itemController.searchItemsByKeyword(keyword);
-
-                    if (results.empty()) {
-                        std::cout << "No items found with keyword: " << keyword << "\n";
-                    } else {
-                        for (const auto& item : results) {
-                            std::cout << "Item: " << item.getName() << " | Category: " << item.getCategory()
-                                      << " | Starting Bid: $" << item.getStartingBid() << "\n";
-                        }
-                    }
+                    itemController.searchItemsByKeyword(); // Handles keyword search internally
                 } else {
                     std::cerr << "Invalid search choice.\n";
                 }
                 break;
             }
             case 6: {
-                // Sort items by criteria
-                std::cout << "Sort Items By:\n";
-                std::cout << "1. End Time\n";
-                std::cout << "2. Starting Bid\n";
-                std::cout << "3. Current Bid\n";
-                int sortChoice;
-                std::cin >> sortChoice;
-
-                std::string criteria;
-                if (sortChoice == 1) {
-                    criteria = "endTime";
-                } else if (sortChoice == 2) {
-                    criteria = "startingBid";
-                } else if (sortChoice == 3) {
-                    criteria = "currentBid";
-                } else {
-                    std::cerr << "Invalid sorting choice.\n";
-                    break;
-                }
-
-                auto sortedItems = itemController.sortItemsBy(criteria);
-                for (const auto& item : sortedItems) {
-                    std::cout << "Item: " << item.getName() << " | Category: " << item.getCategory()
-                              << " | Starting Bid: $" << item.getStartingBid()
-                              << " | Current Bid: $" << item.getCurrentBid()
-                              << " | End Time: " << std::chrono::system_clock::to_time_t(item.getEndTime()) << "\n";
-                }
+                itemController.sortItemsBy();
                 break;
             }
             case 7: {
-                // Return to Main Menu
+                std::string itemId = InputValidator::validateString("Enter the Item ID to finalize auction: ");
+                bidController.finalizeAuction(itemId);
+                break;
+            }
+            case 8: {
+                double amount = InputValidator::validateDouble("Enter the amount to top-up (CP): ", 0.01, 1e6);
+                User* user = Authenticator::getLoggedUser();
+                user->setCreditPoints(user->getCreditPoints() + amount);
+                std::cout << "Top-up successful! Your new balance is " << user->getCreditPoints() << " CP.\n";
+                break;
+            }
+            case 9: {
                 return;
             }
             default: {
@@ -311,15 +266,10 @@ void MemberMenu::displayBuyerFeaturesMenu() {
 }
 
 
-
 void MemberMenu::displaySellerFeaturesMenu() {
-    ItemDataController itemController; // Create the controller instance
-    std::cout << "Loading categories...\n";
-    Category::loadFromFile("data/categories.dat");
+    std::cout << "Debug: Entering Seller Features Menu\n";
 
-    // Automatically load listings at the start
-    itemController.loadListingsFromFile("data/items.dat");
-
+    ItemDataController itemController;
     int choice;
 
     do {
@@ -339,68 +289,29 @@ void MemberMenu::displaySellerFeaturesMenu() {
             continue;
         }
 
-        Utils::clearScreen();
+        std::cout << "Debug: User selected option " << choice << "\n";
 
         switch (choice) {
-            case 1: {
-                // Create a new item listing
-                try {
-                    itemController.createItemListing();
-                    itemController.saveListingsToFile("data/items.dat"); // Automatically save
-                } catch (const std::exception& e) {
-                    std::cout << "Error: " << e.what() << "\n";
-                }
+            case 1:
+                itemController.createItem();
                 break;
-            }
-
-            case 2: {
-                // Edit an existing item listing
-                std::string itemId = InputValidator::validateString("Enter the Item ID to edit: ");
-                std::string newDescription = InputValidator::validateString("Enter new description: ");
-                double newStartingBid = InputValidator::validateDouble("Enter new starting bid: ", 0.0, 1e6);
-                if (itemController.editItem(itemId, newDescription, newStartingBid)) {
-                    std::cout << "Item edited successfully.\n";
-                    itemController.saveListingsToFile("data/items.dat"); // Automatically save
-                } else {
-                    std::cout << "Failed to edit item.\n";
-                }
+            case 2:
+                itemController.editItem();
                 break;
-            }
-
-            case 3: {
-                // Remove an existing item listing
-                std::string itemId = InputValidator::validateString("Enter the Item ID to remove: ");
-                if (itemController.deleteItem(itemId)) {
-                    std::cout << "Item removed successfully.\n";
-                    itemController.saveListingsToFile("data/items.dat"); // Automatically save
-                } else {
-                    std::cout << "Failed to remove item.\n";
-                }
+            case 3:
+                itemController.deleteItem();
                 break;
-            }
-
-            case 4: {
-                // View all listings
-                itemController.viewListings();
+            case 4:
+                itemController.viewAllItems();
                 break;
-            }
-
-            case 5: {
-                // Exit menu
-                return;
-            }
-
+            case 5:
+                std::cout << "Debug: Returning to Main Menu\n";
+                return; // Exit the Seller Features menu
             default:
                 std::cout << "Invalid choice. Please try again.\n";
                 break;
         }
-
-        std::cout << "\nPress Enter to return to the Seller Features menu...";
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-        std::cin.get();
-
     } while (true);
+
+    std::cout << "Debug: Exiting Seller Features Menu\n";
 }
-
-
-

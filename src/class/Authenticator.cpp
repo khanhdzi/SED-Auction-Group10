@@ -55,7 +55,12 @@ void Authenticator::registerUser() {
 
     std::string idType = "member";
     std::string idNumber = generateUserID();
+
+    // Create a new user with default buyerRating and sellerRating as 3.0
     User newUser(username, password, fullName, phoneNumber, email, idType, idNumber);
+    newUser.setCreditPoints(500);  // Initialize credit points
+    newUser.setBuyerRating(3.0);   // Set default buyer rating
+    newUser.setSellerRating(3.0);  // Set default seller rating
 
     if (userDAO.saveUser(newUser)) {
         std::cout << "User registered successfully.\n";
@@ -63,6 +68,7 @@ void Authenticator::registerUser() {
         std::cout << "Failed to register user.\n";
     }
 }
+
 void Authenticator::Userlogin() {
     while (true) {
         std::cout << "====================================\n";

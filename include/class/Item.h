@@ -1,10 +1,8 @@
-// include/class/Item.h
 #ifndef ITEM_H
 #define ITEM_H
 
 #include <string>
 #include <chrono>
-#include <random>
 #include <fstream>
 
 class Item {
@@ -12,7 +10,7 @@ public:
     // Constructor
     Item(std::string name, std::string category, std::string description, 
          double startingBid, double bidIncrement, std::chrono::system_clock::time_point endTime, 
-         int minBuyerRating);
+         int minBuyerRating, const std::string& sellerID);
 
     // Getters
     std::string getItemID() const;
@@ -26,6 +24,7 @@ public:
     std::chrono::system_clock::time_point getEndTime() const;
     int getMinBuyerRating() const;
     std::string getStatus() const;
+    std::string getSellerID() const; // New getter for seller ID
 
     // Setters
     void setCurrentBid(double bid, const std::string& bidder);
@@ -52,6 +51,7 @@ private:
     std::chrono::system_clock::time_point endTime;
     int minBuyerRating;
     std::string status; // "active" or "closed"
+    std::string sellerID; // New field for seller ID
 };
 
 #endif // ITEM_H

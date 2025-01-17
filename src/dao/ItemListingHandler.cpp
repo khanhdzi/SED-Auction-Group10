@@ -93,7 +93,7 @@ void ItemListingHandler::saveItems(const std::string& filePath) const {
 void ItemListingHandler::loadItems(const std::string& filePath) {
     std::ifstream file(filePath, std::ios::binary);
     if (!file.is_open()) {
-        std::cerr << "Error: Could not open file " << filePath << " for loading.\n";
+        std::cerr << "Error: Could not open file " << filePath << " for loading items.\n";
         return;
     }
 
@@ -106,20 +106,26 @@ void ItemListingHandler::loadItems(const std::string& filePath) {
 
     items.clear();
     for (size_t i = 0; i < size; ++i) {
-        Item item("", "", "", 0.0, 0.0, std::chrono::system_clock::now(), 0);
+        // Updated constructor call to include sellerID
+        Item item("", "", "", 0.0, 0.0, std::chrono::system_clock::now(), 0, "");
         item.deserialize(file);
         items.push_back(item);
     }
 
     file.close();
-    std::cout << "Debug: Loaded " << items.size() << " items from " << filePath << ".\n";
+    std::cout << "Items loaded successfully from " << filePath << ".\n";
 }
 
 
 void ItemListingHandler::displayItems(const std::vector<Item>& items) const {
     for (const auto& item : items) {
-        std::cout << "ID: " << item.getItemID() << ", Name: " << item.getName()
-                  << ", Category: " << item.getCategory()
-                  << ", Starting Bid: " << item.getStartingBid() << "\n";
+        std::cout << "ID: " << item.getItemID() 
+                  << ", Name: " << item.getName() 
+                  << ", Category: " << item.getCategory() 
+                  << ", Seller: " << item.getSellerID() 
+                  << ", Current Bidder: " << item.getCurrentBidder() 
+                  << ", Starting Bid: " << item.getStartingBid()
+                  << ", Current Bid: " << item.getCurrentBid()  
+                  << "\n";
     }
 }

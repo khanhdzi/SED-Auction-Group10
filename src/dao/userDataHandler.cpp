@@ -1,6 +1,8 @@
 #include "../../include/dao/UserDataHandler.h"
 #include <fstream>
 #include <iostream>
+#include <optional>
+
 
 const std::string UserDataHandler::FILE_PATH = "data/users.dat";
 
@@ -35,6 +37,7 @@ std::vector<User> UserDataHandler::getAllUsers() {
     file.close();
     return users;
 }
+
 
 // Find user by username and password
 std::optional<User> UserDataHandler::findUserByCredentials(const std::string& username, const std::string& password) {
@@ -95,4 +98,15 @@ void UserDataHandler::displayUserDetails(const std::string& username) {
     }
     std::cerr << "User not found.\n";
 }
+
+std::optional<User> UserDataHandler::findUserById(const std::string& userId) {
+    auto users = getAllUsers();
+    for (const auto& user : users) {
+        if (user.getIdNumber() == userId) {
+            return user;
+        }
+    }
+    return std::nullopt; // Return empty if no user found
+}
+
 

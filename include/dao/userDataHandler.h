@@ -4,21 +4,22 @@
 
 #include <vector>
 #include <optional>
-#include "../class/user.h"
+#include "../class/User.h"
 
 class UserDataHandler {
 private:
-    static const std::string FILE_PATH;  // Declare as static
+    static const std::string FILE_PATH;  // Path to the user data file
 
 public:
     bool saveUser(const User& user);
-    std::vector<User> getAllUsers();
+    std::vector<User> getAllUsers();  // No const here
     std::optional<User> findUserByCredentials(const std::string& username, const std::string& password);
-    
+    std::optional<User> findUserById(const std::string& userId);  // No const here
+
     // New methods
-    bool updateUser(const User& updatedUser); // Updates a user in the users.dat file
-    void displayUserDetails(const std::string& username); // Displays details of a specific user
-    
+    bool updateUser(const User& updatedUser);
+    void displayUserDetails(const std::string& username);
+
     static const std::string& getFilePath() { return FILE_PATH; }
 };
 

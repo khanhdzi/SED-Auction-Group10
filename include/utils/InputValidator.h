@@ -4,6 +4,7 @@
 
 #include <string>
 #include "../dao/userDataHandler.h"
+#include "../dao/ItemListingHandler.h" 
 
 class InputValidator {
 
@@ -26,6 +27,11 @@ public:
 
     // Date validation (format: yyyy-mm-dd)
     static std::string validateDate(const std::string& question);
+
+    static std::string validateExistingItemID(const std::string& question, const ItemListingHandler& itemHandler);
+
+
+    static std::string validateItemID(const std::string& question);
 
     // Validation for a valid existing User ID
     static std::string validateExistingUserID(const std::string& question);

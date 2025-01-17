@@ -1,5 +1,6 @@
 // /src/utils/InputValidator.cpp
 #include "../../include/utils/InputValidator.h"
+#include "../../include/controller/ItemDataController.h"
 #include <iostream>
 #include <regex>
 #include <limits>
@@ -240,4 +241,40 @@ bool InputValidator::isValidPhoneNumber(const std::string& phoneNumber) {
     // Define a regular expression for a valid phone number (10-15 digits)
     const std::regex phoneRegex(R"(^\+?\d{10,15}$)");
     return std::regex_match(phoneNumber, phoneRegex);
+}
+
+std::string InputValidator::validateItemID(const std::string& question) {
+    std::string itemID;
+
+    while (true) {
+        std::cout << question;
+        std::cin >> itemID;
+
+        // Example: Item ID format "I-XXXX" where XXXX is a 4-digit number
+        std::regex itemIDRegex(R"(^I-\d{4}$)");
+        if (!std::regex_match(itemID, itemIDRegex)) {
+            std::cout << "Invalid Item ID format. It should be 'I-XXXX', where 'XXXX' is a 4-digit number." << std::endl;
+            continue;
+        }
+
+        return itemID;
+    }
+}
+
+ItemDataController controller;
+
+std::string InputValidator::validateExistingItemID(const std::string& question, const ItemListingHandler& itemHandler) {
+    std::string itemId;
+    while (true) {
+        std::cout << question;
+        std::cin >> itemId;
+
+        auto itemOpt = itemHandler.findItemById(itemId);
+        if (!itemOpt) {
+            std::cout << "Invalid Item ID. Please try again.\n";
+            continue;
+        }
+
+        return itemId; // Valid Item ID
+    }
 }

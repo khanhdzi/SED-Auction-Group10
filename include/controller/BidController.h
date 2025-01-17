@@ -3,32 +3,38 @@
 
 #include "../dao/BidDAO.h"
 #include "../dao/ItemListingHandler.h"
+#include "../dao/userDataHandler.h"
 #include "../class/Authenticator.h"
+#include "../utils/InputValidator.h"
+#include "../class/RatingRecord.h"
+#include "../dao/RatingDAO.h"
 #include <string>
 #include <vector>
+#include <iostream>
 
 class BidController {
 public:
     // Place a bid
-    void placeBid(const std::string& itemId, double amount, double bidLimit = 0.0);
+    void placeBid();
 
     // View all bids for a specific item
-    void viewBidsForItem(const std::string& itemId) const;
+    void viewBidsForItem();
 
     // View active bids placed by the logged-in user
     void viewUserBids() const;
 
-    // Automatically handle bidding up to the bid limit
-    void handleAutomaticBidding(const std::string& itemId);
+    // Finalize an auction
+    void finalizeAuction(const std::string& itemId);
 
 private:
-    BidDAO bidDAO;               // Handles bid storage and retrieval
-    ItemListingHandler itemDAO;  // Handles item storage and retrieval
+    BidDAO bidDAO;
+    ItemListingHandler itemDAO;
+    UserDataHandler userDAO;
 
-    // Helper to resolve automatic bid limit conflicts
-    bool resolveAutomaticBidLimitConflict(const std::string& itemId, double bidLimit) const;
+    // Helper to check credit points
+    bool hasSufficientCreditPoints(double bidAmount) const;
 
-    // Display bid details
+    // Display bids
     void displayBids(const std::vector<Bid>& bids) const;
 };
 

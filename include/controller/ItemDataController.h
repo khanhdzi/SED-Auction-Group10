@@ -17,6 +17,8 @@ public:
     void saveListingsToFile() const;
     void loadListingsFromFile();
 
+    // Check if the item ID exists
+    bool isItemIDExist(const std::string& itemID) const;
 private:
     ItemListingHandler itemDAO; // Handles item storage and operations
     const std::string defaultFilePath = "data/items.dat";
