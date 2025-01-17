@@ -1,6 +1,7 @@
 #include "../include/controller/ItemDataController.h"
-#include "../../include/class/Authenticator.h"
+#include "../include/class/Authenticator.h"
 #include "../include/utils/InputValidator.h"
+#include "../include/utils/Category.h"
 #include <iostream>
 
 void ItemDataController::createItem() {
@@ -12,18 +13,23 @@ void ItemDataController::createItem() {
     User* seller = Authenticator::getLoggedUser();
 
     std::string name = InputValidator::validateString("Enter item name: ");
+    Category::displayCategories();
     std::string category = InputValidator::validateString("Enter item category: ");
     std::string description = InputValidator::validateString("Enter item description: ");
     double startingBid = InputValidator::validateDouble("Enter starting bid: ", 0.0, 1e6);
     double bidIncrement = InputValidator::validateDouble("Enter bid increment: ", 1.0, 1e5);
     auto endTime = std::chrono::system_clock::now() + std::chrono::hours(InputValidator::validateInt("Enter auction duration in hours: ", 1, 168));
+    
+    // Set minimum buyer rating
+    int minBuyerRating = InputValidator::validateInt("Enter minimum buyer rating (1 to 5): ", 1, 5);
 
     // Create new item and associate with seller
-    Item newItem(name, category, description, startingBid, bidIncrement, endTime, 3, seller->getUsername());
+    Item newItem(name, category, description, startingBid, bidIncrement, endTime, minBuyerRating, seller->getUsername());
     itemDAO.addItem(newItem);
 
-    std::cout << "Item created successfully.\n";
+    std::cout << "Item created successfully with minimum buyer rating: " << minBuyerRating << ".\n";
 }
+
 
 
 void ItemDataController::editItem() {

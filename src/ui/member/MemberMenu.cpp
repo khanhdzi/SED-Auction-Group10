@@ -218,16 +218,15 @@ void MemberMenu::displayBuyerFeaturesMenu() {
         std::cout << "4. View My Active Bids\n";
         std::cout << "5. Search Items by Category or Keyword\n";
         std::cout << "6. Sort Items\n";
-        std::cout << "7. Finalize Auction\n";
-        std::cout << "8. Top-Up Credit Points\n";
-        std::cout << "9. Return to Main Menu\n";
+        std::cout << "7. Top-Up Credit Points\n";
+        std::cout << "8. Return to Main Menu\n";
         std::cout << "Enter your choice: ";
         std::cin >> choice;
 
         if (std::cin.fail()) {
             std::cin.clear();
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            std::cout << "Invalid input. Please enter a number between 1 and 9.\n";
+            std::cout << "Invalid input. Please enter a number between 1 and 8.\n";
             continue;
         }
 
@@ -249,6 +248,7 @@ void MemberMenu::displayBuyerFeaturesMenu() {
             case 3: {
                 std::cout << "Debug: Placing a bid.\n";
                 bidController.placeBid();
+            
                 break;
             }
             case 4: {
@@ -263,6 +263,7 @@ void MemberMenu::displayBuyerFeaturesMenu() {
                 std::cin >> searchChoice;
                 if (searchChoice == 1) {
                     std::cout << "Debug: Searching by category.\n";
+                    Category::displayCategories();
                     itemController.searchItemsByCategory();
                 } else if (searchChoice == 2) {
                     std::cout << "Debug: Searching by keyword.\n";
@@ -278,12 +279,6 @@ void MemberMenu::displayBuyerFeaturesMenu() {
                 break;
             }
             case 7: {
-                std::cout << "Debug: Finalizing an auction.\n";
-                std::string itemId = InputValidator::validateString("Enter the Item ID to finalize auction: ");
-                bidController.finalizeAuction(itemId);
-                break;
-            }
-            case 8: {
                 std::cout << "Debug: Topping up credit points.\n";
                 double amount = InputValidator::validateDouble("Enter the amount to top-up (CP): ", 0.01, 1e6);
                 User* user = Authenticator::getLoggedUser();
@@ -291,7 +286,7 @@ void MemberMenu::displayBuyerFeaturesMenu() {
                 std::cout << "Top-up successful! Your new balance is " << user->getCreditPoints() << " CP.\n";
                 break;
             }
-            case 9: {
+            case 8: {
                 std::cout << "Debug: Returning to Member Menu.\n";
                 return;
             }
@@ -309,9 +304,9 @@ void MemberMenu::displayBuyerFeaturesMenu() {
 }
 
 void MemberMenu::displaySellerFeaturesMenu() {
-    std::cout << "Debug: Entering Seller Features Menu\n";
-
     ItemDataController itemController;
+    BidController bidController;
+
     int choice;
 
     do {
@@ -320,43 +315,55 @@ void MemberMenu::displaySellerFeaturesMenu() {
         std::cout << "2. Edit Listing\n";
         std::cout << "3. Remove Listing\n";
         std::cout << "4. View Listings\n";
-        std::cout << "5. Return to Main Menu\n";
+        std::cout << "5. Finalize Auction\n";
+        std::cout << "6. Return to Main Menu\n";
         std::cout << "Enter your choice: ";
         std::cin >> choice;
 
         if (std::cin.fail()) {
             std::cin.clear();
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            std::cout << "Invalid input. Please enter a number between 1 and 5.\n";
+            std::cout << "Invalid input. Please enter a number between 1 and 6.\n";
             continue;
         }
 
-        std::cout << "Debug: User selected option " << choice << "\n";
+        Utils::clearScreen();
 
         switch (choice) {
             case 1:
                 itemController.createItem();
-                itemController.saveListingsToFile();
+                 itemController.saveListingsToFile();
                 break;
             case 2:
                 itemController.editItem();
-                itemController.saveListingsToFile(); 
+                 itemController.saveListingsToFile();
                 break;
             case 3:
                 itemController.deleteItem();
-                itemController.saveListingsToFile(); 
+                 itemController.saveListingsToFile();
                 break;
             case 4:
                 itemController.viewAllItems();
+                 itemController.saveListingsToFile();
                 break;
-            case 5:
-                std::cout << "Debug: Returning to Main Menu\n";
+            case 5: {
+                // Add braces to isolate the scope of itemId
+                std::string itemId = InputValidator::validateString("Enter the Item ID to finalize auction: ");
+                bidController.finalizeAuction(itemId);
+                 itemController.saveListingsToFile();
+                break;
+            }
+            case 6:
+                std::cout << "Returning to Main Menu...\n";
                 return; // Exit the Seller Features menu
             default:
                 std::cout << "Invalid choice. Please try again.\n";
                 break;
         }
-    } while (true);
 
-    std::cout << "Debug: Exiting Seller Features Menu\n";
+        std::cout << "\nPress Enter to return to the Seller Features menu...";
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        std::cin.get();
+
+    } while (true);
 }

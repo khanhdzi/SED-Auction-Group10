@@ -1,18 +1,24 @@
 #include "../../include/controller/BidController.h"
+#include "../../include/controller/ItemDataController.h"
 #include <iomanip>
 
+
+ItemDataController itemController;
 // Place a bid
 void BidController::placeBid() {
+    std::cout << "Debug: Starting placeBid.\n";
+
     if (!Authenticator::isLoggedIn()) {
         std::cerr << "Error: You must be logged in to place a bid.\n";
         return;
     }
 
     User* bidder = Authenticator::getLoggedUser();
+    std::cout << "Debug: Logged-in user: " << bidder->getUsername() 
+              << ", Credit Points: " << bidder->getCreditPoints() << "\n";
 
     // Validate item ID
     std::string itemId = InputValidator::validateExistingItemID("Enter the Item ID to place a bid: ", itemDAO);
-
     auto itemOpt = itemDAO.findItemById(itemId);
 
     if (!itemOpt) {
@@ -21,6 +27,9 @@ void BidController::placeBid() {
     }
 
     auto item = itemOpt.value();
+    std::cout << "Debug: Found item - ID: " << item.getItemID() 
+              << ", Current Bidder: " << item.getCurrentBidder() 
+              << ", Current Bid: " << item.getCurrentBid() << "\n";
 
     // Check if auction is active
     if (item.getStatus() == "closed" || std::chrono::system_clock::now() >= item.getEndTime()) {
@@ -29,8 +38,11 @@ void BidController::placeBid() {
     }
 
     // Get bid amount
-    double bidAmount = InputValidator::validateDouble("Enter your bid amount: ", 
-                          item.getCurrentBid() + item.getBidIncrement(), 1e6);
+    double bidAmount = InputValidator::validateDouble(
+        "Enter your bid amount: ",
+        item.getCurrentBid() + item.getBidIncrement(),
+        1e6
+    );
 
     // Check if bidder has sufficient credit points
     if (!hasSufficientCreditPoints(bidAmount)) {
@@ -38,29 +50,43 @@ void BidController::placeBid() {
         return;
     }
 
+    // Check buyer rating
+    if (bidder->getBuyerRating() < item.getMinBuyerRating()) {
+        std::cerr << "Error: Your buyer rating is too low to place a bid.\n";
+        return;
+    }
+
     // Place the bid
     Bid newBid(itemId, bidder->getUsername(), bidAmount);
     if (bidDAO.placeBid(newBid)) {
-    // Update item details
-    item.setCurrentBid(bidAmount, bidder->getUsername());
+        std::cout << "Debug: Bid placed successfully. Updating item and user data...\n";
 
-    // Save updated item to the file
-    if (!itemDAO.updateItem(item)) {
-        std::cerr << "Error: Failed to update item after placing the bid.\n";
-        return;
+        // Update item details
+        item.setCurrentBid(bidAmount, bidder->getUsername());
+        std::cout << "Debug: Updated item - ID: " << item.getItemID() 
+                  << ", New Current Bidder: " << item.getCurrentBidder() 
+                  << ", New Current Bid: " << item.getCurrentBid() << "\n";
+
+        // Save updated item to the database
+        if (!itemDAO.updateItem(item)) {
+            std::cerr << "Error: Failed to update item after placing the bid.\n";
+            return;
+        }
+
+        // Deduct credit points from bidder and update their record
+        bidder->setCreditPoints(bidder->getCreditPoints() - bidAmount);
+        if (!userDAO.updateUser(*bidder)) {
+            std::cerr << "Error: Failed to update user credit points.\n";
+            return;
+        }
+        itemController.saveListingsToFile();
+        std::cout << "Debug: Bidder's new credit points: " << bidder->getCreditPoints() << "\n";
+        std::cout << "Bid placed successfully.\n";
+    } else {
+        std::cerr << "Failed to place bid.\n";
     }
-
-    // Deduct credit points from bidder and update their record
-    bidder->setCreditPoints(bidder->getCreditPoints() - bidAmount);
-    if (!userDAO.updateUser(*bidder)) {
-        std::cerr << "Error: Failed to update user credit points.\n";
-        return;
-    }
-
-    std::cout << "Bid placed successfully.\n";
-    }
-
 }
+
 
 
 // View all bids for a specific item
@@ -87,53 +113,73 @@ void BidController::viewUserBids() const {
 
 // Finalize an auction
 void BidController::finalizeAuction(const std::string& itemId) {
+    std::cout << "Debug: Finalizing auction for Item ID: " << itemId << "\n";
+
+    // Retrieve the item
     auto itemOpt = itemDAO.findItemById(itemId);
     if (!itemOpt) {
         std::cerr << "Error: Item not found.\n";
         return;
     }
-
     auto item = itemOpt.value();
 
+    // Ensure auction is closed
     if (item.getStatus() == "closed") {
-        std::cerr << "Error: Auction is already closed.\n";
+        std::cerr << "Error: Auction for this item is already finalized.\n";
         return;
     }
 
-    auto highestBid = bidDAO.getHighestBid(itemId);
-    if (!highestBid) {
-        std::cerr << "No bids were placed on this item.\n";
+    // Find the highest bid
+    auto highestBidOpt = bidDAO.getHighestBid(itemId);
+    if (!highestBidOpt) {
+        std::cout << "No bids were placed for this item. Auction closed with no winner.\n";
+        item.closeAuction();
+        if (!itemDAO.updateItem(item)) {
+            std::cerr << "Error: Failed to update item status.\n";
+        }
         return;
     }
+    auto highestBid = highestBidOpt.value();
 
-    auto bidderOpt = userDAO.findUserById(highestBid->getBidderId());
+    std::cout << "Debug: Highest bid amount: " << highestBid.getBidAmount() 
+              << ", Bidder ID: " << highestBid.getBidderId() << "\n";
+
+    // Retrieve the buyer and seller
+    auto bidderOpt = userDAO.findUserById(highestBid.getBidderId());
+    if (!bidderOpt) {
+        std::cerr << "Error: Could not retrieve buyer information.\n";
+        return;
+    }
     auto sellerOpt = userDAO.findUserById(item.getSellerID());
-
-    if (!bidderOpt || !sellerOpt) {
-        std::cerr << "Error: Could not retrieve buyer or seller information.\n";
+    if (!sellerOpt) {
+        std::cerr << "Error: Could not retrieve seller information.\n";
         return;
     }
 
-    User bidder = bidderOpt.value();
-    User seller = sellerOpt.value();
+    auto bidder = bidderOpt.value();
+    auto seller = sellerOpt.value();
 
-    // Update item status
+    std::cout << "Debug: Buyer: " << bidder.getUsername() 
+              << ", Seller: " << seller.getUsername() << "\n";
+
+    // Transfer funds
+    seller.setCreditPoints(seller.getCreditPoints() + highestBid.getBidAmount());
+    if (!userDAO.updateUser(seller)) {
+        std::cerr << "Error: Failed to update seller's credit points.\n";
+        return;
+    }
+
+    // Update the item's status
     item.closeAuction();
-    itemDAO.addItem(item);
+    if (!itemDAO.updateItem(item)) {
+        std::cerr << "Error: Failed to update item status.\n";
+        return;
+    }
 
-    // Allow mutual rating
-    double sellerRating = InputValidator::validateDouble("Rate the seller (1-5): ", 1.0, 5.0);
-    double buyerRating = InputValidator::validateDouble("Rate the buyer (1-5): ", 1.0, 5.0);
-
-    RatingRecord sellerRecord(bidder.getUsername(), seller.getUsername(), sellerRating, false);
-    RatingRecord buyerRecord(seller.getUsername(), bidder.getUsername(), buyerRating, true);
-
-    RatingDAO ratingDAO;
-    ratingDAO.saveRating(sellerRecord);
-    ratingDAO.saveRating(buyerRecord);
-
-    std::cout << "Auction finalized and ratings submitted successfully.\n";
+    std::cout << "Auction finalized successfully. Winner: " << bidder.getUsername() << "\n";
 }
+
+
 
 // Display bids
 void BidController::displayBids(const std::vector<Bid>& bids) const {

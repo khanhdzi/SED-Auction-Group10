@@ -14,7 +14,7 @@ public:
     bool saveUser(const User& user);
     std::vector<User> getAllUsers();  // No const here
     std::optional<User> findUserByCredentials(const std::string& username, const std::string& password);
-    std::optional<User> findUserById(const std::string& userId);  // No const here
+    std::optional<User> findUserById(const std::string& username);  // No const here
 
     // New methods
     bool updateUser(const User& updatedUser);

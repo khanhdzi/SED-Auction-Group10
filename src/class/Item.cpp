@@ -25,6 +25,11 @@ Item::Item(std::string name, std::string category, std::string description,
       currentBid(startingBid), currentBidder(""), endTime(endTime), 
       minBuyerRating(minBuyerRating), status("active"), sellerID(sellerID) {}
 
+Item::Item()
+    : itemID(generateItemID()), name(""), category(""), description(""), 
+      startingBid(0.0), bidIncrement(0.0), currentBid(0.0), currentBidder(""), 
+      endTime(std::chrono::system_clock::now()), minBuyerRating(0), 
+      status("active"), sellerID("") {}
 
 // Getters
 std::string Item::getItemID() const { return itemID; }
@@ -52,6 +57,14 @@ void Item::setDescription(const std::string& newDescription) {
     description = newDescription;
 }
 
+
+void Item::setCurrentBidder(const std::string& bidder) {
+    currentBidder = bidder;
+}
+
+
+
+
 // Set the starting bid
 void Item::setStartingBid(double newStartingBid) {
     if (currentBid == startingBid) { // Only allow if no bids are placed
@@ -64,26 +77,36 @@ void Item::closeAuction() {
     status = "closed";
 }
 
-// Serialization
+// Serialization// Serialization
 void Item::serialize(std::ofstream& file) const {
     size_t length;
 
+    // Serialize itemID
     length = itemID.size();
     file.write(reinterpret_cast<const char*>(&length), sizeof(length));
     file.write(itemID.c_str(), length);
 
+    // Serialize name
     length = name.size();
     file.write(reinterpret_cast<const char*>(&length), sizeof(length));
     file.write(name.c_str(), length);
 
+    // Serialize category
     length = category.size();
     file.write(reinterpret_cast<const char*>(&length), sizeof(length));
     file.write(category.c_str(), length);
 
+    // Serialize description
     length = description.size();
     file.write(reinterpret_cast<const char*>(&length), sizeof(length));
     file.write(description.c_str(), length);
 
+    // Serialize currentBidder
+    length = currentBidder.size();
+    file.write(reinterpret_cast<const char*>(&length), sizeof(length));
+    file.write(currentBidder.c_str(), length);
+
+    // Serialize other numeric fields
     file.write(reinterpret_cast<const char*>(&startingBid), sizeof(startingBid));
     file.write(reinterpret_cast<const char*>(&bidIncrement), sizeof(bidIncrement));
     file.write(reinterpret_cast<const char*>(&currentBid), sizeof(currentBid));
@@ -126,6 +149,11 @@ void Item::deserialize(std::ifstream& file) {
     file.read(buffer, length);
     buffer[length] = '\0';
     description = buffer;
+
+    file.read(reinterpret_cast<char*>(&length), sizeof(length));
+    file.read(buffer, length);
+    buffer[length] = '\0';
+    currentBidder = buffer;
 
     file.read(reinterpret_cast<char*>(&startingBid), sizeof(startingBid));
     file.read(reinterpret_cast<char*>(&bidIncrement), sizeof(bidIncrement));

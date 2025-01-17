@@ -7,10 +7,14 @@
 
 class Item {
 public:
-    // Constructor
+    // Existing parameterized constructor
     Item(std::string name, std::string category, std::string description, 
-         double startingBid, double bidIncrement, std::chrono::system_clock::time_point endTime, 
-         int minBuyerRating, const std::string& sellerID);
+         double startingBid, double bidIncrement, 
+         std::chrono::system_clock::time_point endTime, int minBuyerRating, 
+         const std::string& sellerID);
+
+    // Default constructor
+    Item();
 
     // Getters
     std::string getItemID() const;
@@ -30,6 +34,7 @@ public:
     void setCurrentBid(double bid, const std::string& bidder);
     void setDescription(const std::string& newDescription);
     void setStartingBid(double newStartingBid);
+    void setCurrentBidder(const std::string& bidder);
     void closeAuction();
 
     // Serialization and Deserialization

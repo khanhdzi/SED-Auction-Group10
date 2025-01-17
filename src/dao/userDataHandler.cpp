@@ -99,14 +99,17 @@ void UserDataHandler::displayUserDetails(const std::string& username) {
     std::cerr << "User not found.\n";
 }
 
-std::optional<User> UserDataHandler::findUserById(const std::string& userId) {
-    auto users = getAllUsers();
+std::optional<User> UserDataHandler::findUserById(const std::string& username) {
+    auto users = getAllUsers(); // Load all users
     for (const auto& user : users) {
-        if (user.getIdNumber() == userId) {
+        if (user.getUsername() == username) { // Match based on username
             return user;
         }
     }
-    return std::nullopt; // Return empty if no user found
+    std::cout << "Debug: User with username " << username << " not found.\n"; // Debug message
+    return std::nullopt;
 }
+
+
 
 

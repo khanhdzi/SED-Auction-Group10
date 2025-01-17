@@ -3,6 +3,8 @@
 #include <iostream>
 #include <fstream>
 #include <filesystem>
+#include <iomanip>
+#include <ctime>
 
 const std::string ItemListingHandler::defaultFilePath = "data/items.dat";
 
@@ -81,16 +83,31 @@ std::vector<Item> ItemListingHandler::sortItemsBy(const std::string& criteria) c
 }
 
 void ItemListingHandler::saveItems(const std::string& filePath) const {
-    std::filesystem::create_directories(std::filesystem::path(filePath).parent_path());
+    std::cout << "Debug: Saving items to file: " << filePath << "\n";
+
     std::ofstream file(filePath, std::ios::binary);
+    if (!file.is_open()) {
+        std::cerr << "Error: Could not open file " << filePath << " for saving items.\n";
+        return;
+    }
+
     size_t size = items.size();
     file.write(reinterpret_cast<const char*>(&size), sizeof(size));
     for (const auto& item : items) {
+        std::cout << "Debug: Writing item to file - ID: " << item.getItemID() 
+                  << ", Current Bidder: " << item.getCurrentBidder() 
+                  << ", Current Bid: " << item.getCurrentBid() << "\n";
         item.serialize(file);
     }
+
+    file.close();
+    std::cout << "Debug: All items saved to file successfully.\n";
 }
 
+
 void ItemListingHandler::loadItems(const std::string& filePath) {
+    std::cout << "Debug: Loading items from file: " << filePath << "\n";
+
     std::ifstream file(filePath, std::ios::binary);
     if (!file.is_open()) {
         std::cerr << "Error: Could not open file " << filePath << " for loading items.\n";
@@ -99,48 +116,62 @@ void ItemListingHandler::loadItems(const std::string& filePath) {
 
     size_t size;
     file.read(reinterpret_cast<char*>(&size), sizeof(size));
-    if (file.fail() || size == 0) {
-        std::cerr << "Error: File " << filePath << " is empty or invalid.\n";
-        return;
-    }
-
     items.clear();
     for (size_t i = 0; i < size; ++i) {
-        // Updated constructor call to include sellerID
-        Item item("", "", "", 0.0, 0.0, std::chrono::system_clock::now(), 0, "");
+        Item item;
         item.deserialize(file);
         items.push_back(item);
+
+        std::cout << "Debug: Loaded item - ID: " << item.getItemID() 
+                  << ", Current Bidder: " << item.getCurrentBidder() 
+                  << ", Current Bid: " << item.getCurrentBid() << "\n";
     }
 
     file.close();
-    std::cout << "Items loaded successfully from " << filePath << ".\n";
+    std::cout << "Debug: All items loaded successfully.\n";
 }
 
 
 void ItemListingHandler::displayItems(const std::vector<Item>& items) const {
     for (const auto& item : items) {
+        // Convert end time to readable format
+        auto endTimeT = std::chrono::system_clock::to_time_t(item.getEndTime());
+        std::string endTimeStr = std::ctime(&endTimeT);
+        endTimeStr.pop_back(); // Remove trailing newline character
+
         std::cout << "ID: " << item.getItemID() 
                   << ", Name: " << item.getName() 
                   << ", Category: " << item.getCategory() 
                   << ", Seller: " << item.getSellerID() 
-                  << ", Current Bidder: " << item.getCurrentBidder() 
-                  << ", Starting Bid: " << item.getStartingBid()
-                  << ", Current Bid: " << item.getCurrentBid()  
+                  << ", Current Bidder: " << (item.getCurrentBidder().empty() ? "No bidders" : item.getCurrentBidder())
+                  << ", Starting Bid: " << item.getStartingBid() 
+                  << ", Current Bid: " << item.getCurrentBid() 
+                  << ", Bid Increment: " << item.getBidIncrement()
+                  << ", Minimum Buyer Rating: " << item.getMinBuyerRating()
+    
+                  << ", End Time: " << endTimeStr
                   << "\n";
     }
 }
 
 bool ItemListingHandler::updateItem(const Item& updatedItem) {
+    std::cout << "Debug: Updating item with ID: " << updatedItem.getItemID() 
+              << ". Current Bidder: " << updatedItem.getCurrentBidder() 
+              << ", Current Bid: " << updatedItem.getCurrentBid() << "\n";
+
     for (auto& item : items) {
         if (item.getItemID() == updatedItem.getItemID()) {
-            item = updatedItem;
-
-            // Save all items to the file to reflect the change
-            saveItems(defaultFilePath);
-
+            item = updatedItem; // Replace the item in the vector
+            saveItems(defaultFilePath); // Save updated vector to the file
+            std::cout << "Debug: Item updated successfully in memory and file.\n";
             return true;
         }
     }
-    return false; // Return false if the item was not found
+
+    std::cerr << "Error: Item with ID " << updatedItem.getItemID() << " not found for update.\n";
+    return false;
 }
+
+
+
 
