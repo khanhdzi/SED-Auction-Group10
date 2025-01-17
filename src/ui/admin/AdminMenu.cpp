@@ -1,10 +1,13 @@
 #include "../../../include/ui/admin/AdminMenu.h"
 #include <iostream>
 #include <limits>
+#include <iomanip> 
+#include <unordered_map> 
+#include <algorithm>   
 #include "../../../include/utils/utils.h"
 #include "../../../include/controller/UserController.h"
+#include "../../../include/controller/ItemDataController.h"
 #include "../../../include/utils/InputValidator.h"
-
 
 void AdminMenu::displayMenu() {
     int choice;
@@ -46,9 +49,8 @@ void AdminMenu::handleSelection(int choice) {
     }
 }
 
-
 void AdminMenu::manageUsersMenu() {
-    UserController userController; // Create an instance of UserController
+    UserController userController;
     int choice;
 
     do {
@@ -76,7 +78,7 @@ void AdminMenu::manageUsersMenu() {
                 userController.displayAllUsers();
                 break;
             case 2: {
-                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Clear input buffer
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
                 std::string username = InputValidator::validateString("Enter username to view: ");
                 userController.displayUserInfo(username);
                 break;
@@ -85,7 +87,7 @@ void AdminMenu::manageUsersMenu() {
                 userController.createUser();
                 break;
             case 4: {
-                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Clear input buffer
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
                 std::string username = InputValidator::validateString("Enter username to edit: ");
                 auto users = userController.getAllUsers();
                 for (auto& user : users) {
@@ -97,13 +99,13 @@ void AdminMenu::manageUsersMenu() {
                 break;
             }
             case 5: {
-                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Clear input buffer
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
                 std::string username = InputValidator::validateString("Enter username to delete: ");
                 userController.deleteUser(username);
                 break;
             }
             case 6:
-                return; // Return to Admin Menu
+                return;
             default:
                 std::cout << "Invalid choice. Please try again.\n";
                 break;
@@ -116,9 +118,36 @@ void AdminMenu::manageUsersMenu() {
 }
 
 void AdminMenu::statisticsMenu() {
-    // Placeholder for statistics menu logic
-    std::cout << "Statistics Menu feature is under development.\n";
-    std::cout << "Press Enter to return to the Admin Menu...";
+    UserController userController;
+    ItemDataController itemController;
+
+    auto users = userController.getAllUsers();
+    auto items = itemController.getAllItems();
+
+    int totalUsers = users.size();
+    int totalItems = items.size();
+    int activeItems = std::count_if(items.begin(), items.end(), [](const Item& item) {
+        return item.getStatus() == "active";
+    });
+    int closedItems = totalItems - activeItems;
+
+    std::cout << "=== Statistics Menu ===\n";
+    std::cout << "Total Users: " << totalUsers << "\n";
+    std::cout << "Total Items Listed: " << totalItems << "\n";
+    std::cout << "Active Items: " << activeItems << "\n";
+    std::cout << "Closed Items: " << closedItems << "\n";
+
+    std::cout << "\nTop Sellers by Listings:\n";
+    std::unordered_map<std::string, int> sellerCount;
+    for (const auto& item : items) {
+        sellerCount[item.getSellerID()]++;
+    }
+
+    for (const auto& [seller, count] : sellerCount) {
+        std::cout << "Seller: " << seller << " | Listings: " << count << "\n";
+    }
+
+    std::cout << "\nPress Enter to return to the Admin Menu...";
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     std::cin.get();
 }

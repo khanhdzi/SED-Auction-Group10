@@ -20,6 +20,9 @@ public:
      // Helper method for seller-specific items
     std::vector<Item> getItemsBySeller(const std::string& sellerID) const;
 
+    std::vector<Item> getAllItems() const ;
+
+
 
 
     // Check if the item ID exists

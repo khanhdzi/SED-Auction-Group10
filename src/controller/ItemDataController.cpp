@@ -122,6 +122,11 @@ bool ItemDataController::isItemIDExist(const std::string& itemID) const {
     return item.has_value();
 }
 
+std::vector<Item> ItemDataController::getAllItems() const {
+    return itemDAO.getAllItems(); // Call the method from ItemListingHandler
+}
+
+
 std::vector<Item> ItemDataController::getItemsBySeller(const std::string& sellerID) const {
     auto allItems = itemDAO.getAllItems();
     std::vector<Item> sellerItems;
