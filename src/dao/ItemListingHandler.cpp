@@ -129,3 +129,18 @@ void ItemListingHandler::displayItems(const std::vector<Item>& items) const {
                   << "\n";
     }
 }
+
+bool ItemListingHandler::updateItem(const Item& updatedItem) {
+    for (auto& item : items) {
+        if (item.getItemID() == updatedItem.getItemID()) {
+            item = updatedItem;
+
+            // Save all items to the file to reflect the change
+            saveItems(defaultFilePath);
+
+            return true;
+        }
+    }
+    return false; // Return false if the item was not found
+}
+

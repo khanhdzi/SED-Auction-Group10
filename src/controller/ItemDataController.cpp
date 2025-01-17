@@ -115,3 +115,15 @@ bool ItemDataController::isItemIDExist(const std::string& itemID) const {
     auto item = itemDAO.findItemById(itemID);
     return item.has_value();
 }
+
+std::vector<Item> ItemDataController::getItemsBySeller(const std::string& sellerID) const {
+    auto allItems = itemDAO.getAllItems();
+    std::vector<Item> sellerItems;
+
+    for (const auto& item : allItems) {
+        if (item.getSellerID() == sellerID) {
+            sellerItems.push_back(item);
+        }
+    }
+    return sellerItems;
+}

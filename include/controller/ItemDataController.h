@@ -17,6 +17,11 @@ public:
     void saveListingsToFile() const;
     void loadListingsFromFile();
 
+     // Helper method for seller-specific items
+    std::vector<Item> getItemsBySeller(const std::string& sellerID) const;
+
+
+
     // Check if the item ID exists
     bool isItemIDExist(const std::string& itemID) const;
 private:

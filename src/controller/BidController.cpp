@@ -11,7 +11,7 @@ void BidController::placeBid() {
     User* bidder = Authenticator::getLoggedUser();
 
     // Validate item ID
-   std::string itemId = InputValidator::validateExistingItemID("Enter the Item ID to place a bid: ", itemDAO);
+    std::string itemId = InputValidator::validateExistingItemID("Enter the Item ID to place a bid: ", itemDAO);
 
     auto itemOpt = itemDAO.findItemById(itemId);
 
@@ -41,15 +41,27 @@ void BidController::placeBid() {
     // Place the bid
     Bid newBid(itemId, bidder->getUsername(), bidAmount);
     if (bidDAO.placeBid(newBid)) {
-        item.setCurrentBid(bidAmount, bidder->getUsername());
-        itemDAO.addItem(item);
-        bidder->setCreditPoints(bidder->getCreditPoints() - bidAmount);
-        userDAO.updateUser(*bidder);
-        std::cout << "Bid placed successfully.\n";
-    } else {
-        std::cerr << "Failed to place bid.\n";
+    // Update item details
+    item.setCurrentBid(bidAmount, bidder->getUsername());
+
+    // Save updated item to the file
+    if (!itemDAO.updateItem(item)) {
+        std::cerr << "Error: Failed to update item after placing the bid.\n";
+        return;
     }
+
+    // Deduct credit points from bidder and update their record
+    bidder->setCreditPoints(bidder->getCreditPoints() - bidAmount);
+    if (!userDAO.updateUser(*bidder)) {
+        std::cerr << "Error: Failed to update user credit points.\n";
+        return;
+    }
+
+    std::cout << "Bid placed successfully.\n";
+    }
+
 }
+
 
 // View all bids for a specific item
 void BidController::viewBidsForItem() {
@@ -149,4 +161,8 @@ void BidController::displayBids(const std::vector<Bid>& bids) const {
 bool BidController::hasSufficientCreditPoints(double bidAmount) const {
     User* bidder = Authenticator::getLoggedUser();
     return bidder->getCreditPoints() >= bidAmount;
+}
+
+std::vector<Bid> BidController::getActiveBidsForUser(const std::string& username) const {
+    return bidDAO.getActiveBidsByUser(username);
 }

@@ -26,6 +26,9 @@ public:
     // Finalize an auction
     void finalizeAuction(const std::string& itemId);
 
+     // Helper method to get active bids for a specific user
+    std::vector<Bid> getActiveBidsForUser(const std::string& username) const;
+
 private:
     BidDAO bidDAO;
     ItemListingHandler itemDAO;

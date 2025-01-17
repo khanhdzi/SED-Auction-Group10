@@ -21,6 +21,9 @@ public:
     void loadItems(const std::string& filePath);
     void displayItems(const std::vector<Item>& items) const;
 
+    // Declaration of the updateItem method
+    bool updateItem(const Item& updatedItem);
+
 private:
     std::vector<Item> items;
     static const std::string defaultFilePath;

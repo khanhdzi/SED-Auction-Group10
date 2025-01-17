@@ -11,27 +11,75 @@
 
 void MemberMenu::displayDashboard() {
     Utils::clearScreen();
+
+    User* loggedUser = Authenticator::getLoggedUser();
+    if (!loggedUser) {
+        std::cout << "Error: No user is logged in.\n";
+        return;
+    }
+
+    std::string username = loggedUser->getUsername();
+    double accountBalance = loggedUser->getCreditPoints();
+
+    // Fetch data for the dashboard
+    ItemDataController itemController;
+    BidController bidController;
+
+    auto allItems =ItemDAO.getAllItems(); // Fetch all items
+    auto activeBids = bidController.getActiveBidsForUser(username); // Fetch active bids
+    auto activeListings = itemController.getItemsBySeller(username); // Fetch seller's listings
+
+    // Dashboard Header
     std::cout << "====================================\n";
     std::cout << "          Account Dashboard         \n";
     std::cout << "====================================\n";
-    std::cout << "Account Overview: Member123\n"; // Replace with actual member username
-    std::cout << "------------------------------------\n";
-    std::cout << "Active Item Listings: 3  |  Active Bids: 2\n";
-    std::cout << "Items Won to Date: 1     |  Account Balance: 300 CP\n";
-    std::cout << "------------------------------------\n\n";
-    std::cout << "Your Active Item Listings:\n";
-    std::cout << "------------------------------------\n";
-    std::cout << "No. | Name          | Category     | Current Bid | Current Bidder | End Date & Time\n";
-    std::cout << "1   | iPhone 13 Pro | Electronics  | 350         | Member456      | 16/01/2025 18:00\n";
-    std::cout << "2   | Rare Coin Set | Collectibles | 300         | Member789      | 20/01/2025 09:00\n";
-    std::cout << "------------------------------------\n\n";
-    std::cout << "Your Active Bids:\n";
-    std::cout << "------------------------------------\n";
-    std::cout << "No. | Name           | Category     | Your Bid    | Current Bid    | End Date & Time\n";
-    std::cout << "1   | Sony Headphones| Electronics  | 100         | 250            | 20/01/2025 10:00\n";
-    std::cout << "2   | Road Bike      | Vehicles     | 300         | 310            | 23/01/2025 17:30\n";
+    std::cout << "Account Overview: " << username << "\n";
+    std::cout << "----------------------------\n";
+    std::cout << "Active Item Listings: " << activeListings.size()
+              << " | Active Bids: " << activeBids.size() << "\n";
+    std::cout << "Items Won to Date: 0"  // Placeholder: Update if you track won items
+              << " | Account Balance: " << accountBalance << " CP\n";
+
+    // Active Listings
+    std::cout << "Your Active Item Listings\n";
+    std::cout << "-------------------------\n";
+    if (activeListings.empty()) {
+        std::cout << "No active item listings.\n";
+    } else {
+        std::cout << "No. | Name          | Category     | Current Bid | Current Bidder | End Date & Time\n";
+        for (size_t i = 0; i < activeListings.size(); ++i) {
+            const auto& item = activeListings[i];
+            auto endTimeT = std::chrono::system_clock::to_time_t(item.getEndTime());
+            std::cout << i + 1 << "   | " << item.getName() << " | " << item.getCategory()
+                      << " | " << (item.getCurrentBid() > 0 ? std::to_string(item.getCurrentBid()) : "No bids")
+                      << " | " << (item.getCurrentBidder().empty() ? "No bidders" : item.getCurrentBidder())
+                      << " | " << std::ctime(&endTimeT);
+        }
+    }
+
+    // Active Bids
+    std::cout << "Your Active Bids\n";
+    std::cout << "----------------\n";
+    if (activeBids.empty()) {
+        std::cout << "No active bids.\n";
+    } else {
+        std::cout << "No. | Name           | Category     | Your Bid    | Current Bid    | End Date & Time\n";
+        for (size_t i = 0; i < activeBids.size(); ++i) {
+            const auto& bid = activeBids[i];
+            auto itemOpt = ItemDAO.findItemById(bid.getItemId());
+            if (!itemOpt) continue; // Skip if the item no longer exists
+
+            const auto& item = *itemOpt;
+            auto endTimeT = std::chrono::system_clock::to_time_t(item.getEndTime());
+            std::cout << i + 1 << "   | " << item.getName() << " | " << item.getCategory()
+                      << " | " << bid.getBidAmount() << " | " << item.getCurrentBid()
+                      << " | " << std::ctime(&endTimeT);
+        }
+    }
+
     std::cout << "====================================\n\n";
 }
+
 
 void MemberMenu::displayMenu() {
     std::cout << "Debug: Entering Member Menu\n";
@@ -39,6 +87,7 @@ void MemberMenu::displayMenu() {
     int choice;
 
     do {
+        displayDashboard();
         std::cout << "=== Member Menu ===\n";
         std::cout << "1. General Features\n";
         std::cout << "2. Buyer Features\n";
@@ -287,12 +336,15 @@ void MemberMenu::displaySellerFeaturesMenu() {
         switch (choice) {
             case 1:
                 itemController.createItem();
+                itemController.saveListingsToFile();
                 break;
             case 2:
                 itemController.editItem();
+                itemController.saveListingsToFile(); 
                 break;
             case 3:
                 itemController.deleteItem();
+                itemController.saveListingsToFile(); 
                 break;
             case 4:
                 itemController.viewAllItems();
