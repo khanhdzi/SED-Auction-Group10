@@ -2,7 +2,7 @@ CXX = g++
 CXXFLAGS = -std=c++17 -Iinclude
 
 # List all source files here
- SRC = src/class/Authenticator.cpp src/class/User.cpp src/class/Item.cpp \
+SRC = src/class/Authenticator.cpp src/class/User.cpp src/class/Item.cpp \
       src/class/Bid.cpp src/class/RatingRecord.cpp src/dao/userDataHandler.cpp \
       src/dao/BidDAO.cpp src/dao/RatingDAO.cpp src/dao/ItemListingHandler.cpp \
       src/controller/UserController.cpp src/controller/ItemDataController.cpp \
@@ -12,10 +12,8 @@ CXXFLAGS = -std=c++17 -Iinclude
       src/utils/InputValidator.cpp src/utils/utils.cpp src/utils/Category.cpp \
       src/main.cpp 
 
-
-
 OBJ = $(SRC:.cpp=.o)
-TARGET = app
+TARGET = Group10_Program.exe
 
 # Default target to build the final executable
 all: $(TARGET)
@@ -28,22 +26,12 @@ $(TARGET): $(OBJ)
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-# # Test-specific targets
-# testAverageRatingUpdate: src/testAverageRatingUpdate.cpp src/dao/UserDataHandler.cpp src/class/User.cpp \
-#                          src/dao/RatingDAO.cpp src/class/RatingRecord.cpp src/controller/RatingController.cpp
-# 	$(CXX) $(CXXFLAGS) -o testAverageRatingUpdate src/testAverageRatingUpdate.cpp \
-# 		src/dao/UserDataHandler.cpp src/dao/RatingDAO.cpp src/class/User.cpp src/class/RatingRecord.cpp \
-# 		src/controller/RatingController.cpp
-
-# testDisplayUsers: src/displayUsers.cpp src/dao/UserDataHandler.cpp src/class/User.cpp
-# 	$(CXX) $(CXXFLAGS) -o testDisplayUsers src/displayUsers.cpp src/dao/UserDataHandler.cpp src/class/User.cpp
-
 # Clean object files and the executable (cross-platform)
 clean:
 ifeq ($(OS),Windows_NT)
 	del /Q $(subst /,\\,$(OBJ)) $(TARGET)
 else
-	rm -f $(OBJ) $(TARGET) testAverageRatingUpdate testDisplayUsers
+	rm -f $(OBJ) $(TARGET)
 endif
 
 # Build and run the application
