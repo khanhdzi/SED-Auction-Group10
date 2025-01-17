@@ -94,15 +94,15 @@ void ItemListingHandler::saveItems(const std::string& filePath) const {
     size_t size = items.size();
     file.write(reinterpret_cast<const char*>(&size), sizeof(size));
     for (const auto& item : items) {
-        std::cout << "Debug: Writing item to file - ID: " << item.getItemID() 
-                  << ", Current Bidder: " << item.getCurrentBidder() 
-                  << ", Current Bid: " << item.getCurrentBid() << "\n";
+        std::cout << "Debug: Writing item to file - ID: " << item.getItemID()
+                  << ", Status: " << item.getStatus() << "\n";
         item.serialize(file);
     }
 
     file.close();
     std::cout << "Debug: All items saved to file successfully.\n";
 }
+
 
 
 void ItemListingHandler::loadItems(const std::string& filePath) {
@@ -122,9 +122,8 @@ void ItemListingHandler::loadItems(const std::string& filePath) {
         item.deserialize(file);
         items.push_back(item);
 
-        std::cout << "Debug: Loaded item - ID: " << item.getItemID() 
-                  << ", Current Bidder: " << item.getCurrentBidder() 
-                  << ", Current Bid: " << item.getCurrentBid() << "\n";
+        std::cout << "Debug: Loaded item - ID: " << item.getItemID()
+                  << ", Status: " << item.getStatus() << "\n";
     }
 
     file.close();
@@ -132,27 +131,51 @@ void ItemListingHandler::loadItems(const std::string& filePath) {
 }
 
 
-void ItemListingHandler::displayItems(const std::vector<Item>& items) const {
+
+/* void ItemListingHandler::displayItems(const std::vector<Item>& items) const {
     for (const auto& item : items) {
-        // Convert end time to readable format
+        if (item.getStatus() != "active") {
+            continue; // Skip closed items
+        }
+
         auto endTimeT = std::chrono::system_clock::to_time_t(item.getEndTime());
         std::string endTimeStr = std::ctime(&endTimeT);
-        endTimeStr.pop_back(); // Remove trailing newline character
+        endTimeStr.pop_back();
 
-        std::cout << "ID: " << item.getItemID() 
-                  << ", Name: " << item.getName() 
-                  << ", Category: " << item.getCategory() 
-                  << ", Seller: " << item.getSellerID() 
+        std::cout << "ID: " << item.getItemID()
+                  << ", Name: " << item.getName()
+                  << ", Category: " << item.getCategory()
+                  << ", Seller: " << item.getSellerID()
                   << ", Current Bidder: " << (item.getCurrentBidder().empty() ? "No bidders" : item.getCurrentBidder())
-                  << ", Starting Bid: " << item.getStartingBid() 
-                  << ", Current Bid: " << item.getCurrentBid() 
+                  << ", Starting Bid: " << item.getStartingBid()
+                  << ", Current Bid: " << item.getCurrentBid()
                   << ", Bid Increment: " << item.getBidIncrement()
                   << ", Minimum Buyer Rating: " << item.getMinBuyerRating()
-    
                   << ", End Time: " << endTimeStr
+                  << ", Status: " << item.getStatus()
                   << "\n";
     }
 }
+ */
+
+void ItemListingHandler::displayItems(const std::vector<Item>& items) const {
+    for (const auto& item : items) {
+        if (item.getStatus() != "active") {
+            std::cout << "Debug: Skipping closed item - ID: " << item.getItemID() << "\n";
+            continue;
+        }
+
+        auto endTimeT = std::chrono::system_clock::to_time_t(item.getEndTime());
+        std::string endTimeStr = std::ctime(&endTimeT);
+        endTimeStr.pop_back();
+
+        std::cout << "ID: " << item.getItemID()
+                  << ", Name: " << item.getName()
+                  << ", Status: " << item.getStatus()
+                  << "\n";
+    }
+}
+
 
 bool ItemListingHandler::updateItem(const Item& updatedItem) {
     std::cout << "Debug: Updating item with ID: " << updatedItem.getItemID() 

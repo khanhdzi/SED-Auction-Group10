@@ -8,7 +8,7 @@
 // Static Utility for Generating Item IDs
 std::string Item::generateItemID() {
     static std::mt19937 rng(std::random_device{}());                  // Random number generator
-    static std::uniform_int_distribution<int> dist(1000, 9999);      // Range of IDs
+    static std::uniform_int_distribution<int> dist(0001, 9999);      // Range of IDs
 
     std::ostringstream oss;
     oss << "I-" << dist(rng);                                        // Generate ID in "I-XXXX" format
@@ -74,8 +74,10 @@ void Item::setStartingBid(double newStartingBid) {
 }
 
 void Item::closeAuction() {
+    std::cout << "Debug: Closing auction for item ID: " << itemID << "\n";
     status = "closed";
 }
+
 
 // Serialization// Serialization
 void Item::serialize(std::ofstream& file) const {

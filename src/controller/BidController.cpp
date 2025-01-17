@@ -107,11 +107,9 @@ void BidController::viewUserBids() const {
     displayBids(bids);
 }
 
-// Finalize an auction
 void BidController::finalizeAuction(const std::string& itemId) {
     std::cout << "Debug: Finalizing auction for Item ID: " << itemId << "\n";
 
-    // Retrieve the item
     auto itemOpt = itemDAO.findItemById(itemId);
     if (!itemOpt) {
         std::cerr << "Error: Item not found.\n";
@@ -119,13 +117,11 @@ void BidController::finalizeAuction(const std::string& itemId) {
     }
     auto item = itemOpt.value();
 
-    // Ensure auction is closed
     if (item.getStatus() == "closed") {
         std::cerr << "Error: Auction for this item is already finalized.\n";
         return;
     }
 
-    // Find the highest bid
     auto highestBidOpt = bidDAO.getHighestBid(itemId);
     if (!highestBidOpt) {
         std::cout << "No bids were placed for this item. Auction closed with no winner.\n";
@@ -137,43 +133,21 @@ void BidController::finalizeAuction(const std::string& itemId) {
     }
     auto highestBid = highestBidOpt.value();
 
-    std::cout << "Debug: Highest bid amount: " << highestBid.getBidAmount() 
+    std::cout << "Debug: Highest bid amount: " << highestBid.getBidAmount()
               << ", Bidder ID: " << highestBid.getBidderId() << "\n";
 
-    // Retrieve the buyer and seller
-    auto bidderOpt = userDAO.findUserById(highestBid.getBidderId());
-    if (!bidderOpt) {
-        std::cerr << "Error: Could not retrieve buyer information.\n";
-        return;
-    }
-    auto sellerOpt = userDAO.findUserById(item.getSellerID());
-    if (!sellerOpt) {
-        std::cerr << "Error: Could not retrieve seller information.\n";
-        return;
-    }
-
-    auto bidder = bidderOpt.value();
-    auto seller = sellerOpt.value();
-
-    std::cout << "Debug: Buyer: " << bidder.getUsername() 
-              << ", Seller: " << seller.getUsername() << "\n";
-
-    // Transfer funds
-    seller.setCreditPoints(seller.getCreditPoints() + highestBid.getBidAmount());
-    if (!userDAO.updateUser(seller)) {
-        std::cerr << "Error: Failed to update seller's credit points.\n";
-        return;
-    }
-
-    // Update the item's status
     item.closeAuction();
+    std::cout << "Debug: Item status set to 'closed' for ID: " << item.getItemID() << "\n";
+
     if (!itemDAO.updateItem(item)) {
         std::cerr << "Error: Failed to update item status.\n";
         return;
     }
-
-    std::cout << "Auction finalized successfully. Winner: " << bidder.getUsername() << "\n";
+                     itemController.saveListingsToFile();
+    std::cout << "Auction finalized successfully. Winner: " << highestBid.getBidderId() << "\n";
 }
+
+
 
 
 

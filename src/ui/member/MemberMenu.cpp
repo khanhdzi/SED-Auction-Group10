@@ -350,7 +350,6 @@ void MemberMenu::displaySellerFeaturesMenu() {
                 // Add braces to isolate the scope of itemId
                 std::string itemId = InputValidator::validateString("Enter the Item ID to finalize auction: ");
                 bidController.finalizeAuction(itemId);
-                 itemController.saveListingsToFile();
                 break;
             }
             case 6:

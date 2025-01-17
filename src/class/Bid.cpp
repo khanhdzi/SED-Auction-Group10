@@ -1,4 +1,5 @@
 #include "../../include/class/Bid.h"
+#include "../../include/class/Item.h"
 #include <iostream>
 #include <sstream>
 
