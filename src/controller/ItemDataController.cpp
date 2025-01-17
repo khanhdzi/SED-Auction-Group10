@@ -93,13 +93,11 @@ void ItemDataController::sortItemsBy() const {
 }
 
 void ItemDataController::saveListingsToFile() const {
-    std::string filePath = InputValidator::validateString("Enter file path to save items: ");
-    itemDAO.saveItems(filePath);
-    std::cout << "Items saved successfully to " << filePath << ".\n";
+    itemDAO.saveItems(defaultFilePath);
+    std::cout << "Items saved successfully to " << defaultFilePath << ".\n";
 }
 
 void ItemDataController::loadListingsFromFile() {
-    std::string filePath = InputValidator::validateString("Enter file path to load items: ");
-    itemDAO.loadItems(filePath);
-    std::cout << "Items loaded successfully from " << filePath << ".\n";
+    itemDAO.loadItems(defaultFilePath);
+    std::cout << "Items loaded successfully from " << defaultFilePath << ".\n";
 }

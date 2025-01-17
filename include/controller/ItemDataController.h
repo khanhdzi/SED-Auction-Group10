@@ -19,6 +19,7 @@ public:
 
 private:
     ItemListingHandler itemDAO; // Handles item storage and operations
+    const std::string defaultFilePath = "data/items.dat";
 };
 
 #endif // ITEMDATACONTROLLER_H
