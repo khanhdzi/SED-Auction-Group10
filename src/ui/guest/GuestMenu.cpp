@@ -4,6 +4,7 @@
 #include <limits>
 #include "../../../include/utils/utils.h"
 #include "../../../include/class/Authenticator.h"
+#include "../../../include/controller/ItemDataController.h"
 
 void GuestMenu::displayMenu() {
     int choice;
@@ -29,10 +30,13 @@ void GuestMenu::displayMenu() {
 }
 
 void GuestMenu::handleSelection(int choice) {
+    ItemDataController itemController;
     Utils::clearScreen();
     switch (choice) {
         case 1:
-        
+            {
+                itemController.viewAllItems();
+            }
             break;
         case 2:
             {  

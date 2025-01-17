@@ -6,7 +6,7 @@
 ItemDataController itemController;
 // Place a bid
 void BidController::placeBid() {
-    std::cout << "Debug: Starting placeBid.\n";
+
 
     if (!Authenticator::isLoggedIn()) {
         std::cerr << "Error: You must be logged in to place a bid.\n";
@@ -27,9 +27,7 @@ void BidController::placeBid() {
     }
 
     auto item = itemOpt.value();
-    std::cout << "Debug: Found item - ID: " << item.getItemID() 
-              << ", Current Bidder: " << item.getCurrentBidder() 
-              << ", Current Bid: " << item.getCurrentBid() << "\n";
+
 
     // Check if auction is active
     if (item.getStatus() == "closed" || std::chrono::system_clock::now() >= item.getEndTime()) {
@@ -59,7 +57,7 @@ void BidController::placeBid() {
     // Place the bid
     Bid newBid(itemId, bidder->getUsername(), bidAmount);
     if (bidDAO.placeBid(newBid)) {
-        std::cout << "Debug: Bid placed successfully. Updating item and user data...\n";
+    
 
         // Update item details
         item.setCurrentBid(bidAmount, bidder->getUsername());
@@ -110,12 +108,24 @@ void BidController::viewUserBids() const {
 void BidController::finalizeAuction(const std::string& itemId) {
     std::cout << "Debug: Finalizing auction for Item ID: " << itemId << "\n";
 
+    if (!Authenticator::isLoggedIn()) {
+        std::cerr << "Error: You must be logged in to finalize an auction.\n";
+        return;
+    }
+
+    User* loggedUser = Authenticator::getLoggedUser();
     auto itemOpt = itemDAO.findItemById(itemId);
     if (!itemOpt) {
         std::cerr << "Error: Item not found.\n";
         return;
     }
     auto item = itemOpt.value();
+
+    // Check if the logged-in user is the seller
+    if (item.getSellerID() != loggedUser->getUsername()) {
+        std::cerr << "Error: You can only finalize auctions for your own items.\n";
+        return;
+    }
 
     if (item.getStatus() == "closed") {
         std::cerr << "Error: Auction for this item is already finalized.\n";
@@ -137,16 +147,15 @@ void BidController::finalizeAuction(const std::string& itemId) {
               << ", Bidder ID: " << highestBid.getBidderId() << "\n";
 
     item.closeAuction();
-    std::cout << "Debug: Item status set to 'closed' for ID: " << item.getItemID() << "\n";
 
     if (!itemDAO.updateItem(item)) {
         std::cerr << "Error: Failed to update item status.\n";
         return;
     }
-                     itemController.saveListingsToFile();
+
+    itemController.saveListingsToFile();
     std::cout << "Auction finalized successfully. Winner: " << highestBid.getBidderId() << "\n";
 }
-
 
 
 

@@ -74,7 +74,6 @@ void Item::setStartingBid(double newStartingBid) {
 }
 
 void Item::closeAuction() {
-    std::cout << "Debug: Closing auction for item ID: " << itemID << "\n";
     status = "closed";
 }
 

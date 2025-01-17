@@ -7,7 +7,9 @@
 #include "../../../include/controller/ItemDataController.h"
 #include "../../../include/utils/InputValidator.h"
 #include <iostream>
+#include <algorithm>
 #include <limits>
+
 
 void MemberMenu::displayDashboard() {
     Utils::clearScreen();
@@ -25,9 +27,17 @@ void MemberMenu::displayDashboard() {
     ItemDataController itemController;
     BidController bidController;
 
-    auto allItems =ItemDAO.getAllItems(); // Fetch all items
+    auto allItems = ItemDAO.getAllItems(); // Fetch all items
     auto activeBids = bidController.getActiveBidsForUser(username); // Fetch active bids
     auto activeListings = itemController.getItemsBySeller(username); // Fetch seller's listings
+
+    // Filter out inactive items from activeBids
+    activeBids.erase(std::remove_if(activeBids.begin(), activeBids.end(),
+                                    [this](const Bid& bid) { // Capture 'this' for accessing ItemDAO
+                                        auto itemOpt = ItemDAO.findItemById(bid.getItemId());
+                                        return !itemOpt || itemOpt->getStatus() == "closed";
+                                    }),
+                     activeBids.end());
 
     // Dashboard Header
     std::cout << "====================================\n";
@@ -37,7 +47,7 @@ void MemberMenu::displayDashboard() {
     std::cout << "----------------------------\n";
     std::cout << "Active Item Listings: " << activeListings.size()
               << " | Active Bids: " << activeBids.size() << "\n";
-    std::cout << "Items Won to Date: 0"  // Placeholder: Update if you track won items
+    std::cout << "Items Won to Date: 0" // Placeholder: Update if you track won items
               << " | Account Balance: " << accountBalance << " CP\n";
 
     // Active Listings
@@ -49,6 +59,8 @@ void MemberMenu::displayDashboard() {
         std::cout << "No. | Name          | Category     | Current Bid | Current Bidder | End Date & Time\n";
         for (size_t i = 0; i < activeListings.size(); ++i) {
             const auto& item = activeListings[i];
+            if (item.getStatus() != "active") continue;
+
             auto endTimeT = std::chrono::system_clock::to_time_t(item.getEndTime());
             std::cout << i + 1 << "   | " << item.getName() << " | " << item.getCategory()
                       << " | " << (item.getCurrentBid() > 0 ? std::to_string(item.getCurrentBid()) : "No bids")
@@ -350,6 +362,7 @@ void MemberMenu::displaySellerFeaturesMenu() {
                 // Add braces to isolate the scope of itemId
                 std::string itemId = InputValidator::validateString("Enter the Item ID to finalize auction: ");
                 bidController.finalizeAuction(itemId);
+
                 break;
             }
             case 6:
