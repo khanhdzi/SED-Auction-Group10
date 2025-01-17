@@ -63,11 +63,6 @@ void BidController::placeBid() {
 
         // Update item details
         item.setCurrentBid(bidAmount, bidder->getUsername());
-        std::cout << "Debug: Updated item - ID: " << item.getItemID() 
-                  << ", New Current Bidder: " << item.getCurrentBidder() 
-                  << ", New Current Bid: " << item.getCurrentBid() << "\n";
-
-        // Save updated item to the database
         if (!itemDAO.updateItem(item)) {
             std::cerr << "Error: Failed to update item after placing the bid.\n";
             return;
@@ -79,13 +74,14 @@ void BidController::placeBid() {
             std::cerr << "Error: Failed to update user credit points.\n";
             return;
         }
-        itemController.saveListingsToFile();
+
         std::cout << "Debug: Bidder's new credit points: " << bidder->getCreditPoints() << "\n";
         std::cout << "Bid placed successfully.\n";
     } else {
         std::cerr << "Failed to place bid.\n";
     }
 }
+
 
 
 
