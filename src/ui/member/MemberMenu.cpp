@@ -56,27 +56,14 @@ void MemberMenu::displayMenu() {
 
         std::cout << "Debug: User selected " << choice << "\n";
 
-        switch (choice) {
-            case 1:
-                std::cout << "General Features Selected\n";
-                break;
-            case 2:
-                std::cout << "Buyer Features Selected\n";
-                break;
-            case 3:
-                std::cout << "Seller Features Selected\n";
-                break;
-            case 4:
-                std::cout << "Logging out...\n";
-                break;
-            default:
-                std::cout << "Invalid choice. Please try again.\n";
-                break;
-        }
-    } while (choice != 4);
+        // Delegate to handleSelection
+        handleSelection(choice);
+
+    } while (choice != 4); // Exit when user chooses "Logout"
 
     std::cout << "Debug: Exiting Member Menu\n";
 }
+
 
 
 
@@ -195,54 +182,60 @@ void MemberMenu::displayBuyerFeaturesMenu() {
             continue;
         }
 
+        std::cout << "Debug: User selected " << choice << "\n";
+
         Utils::clearScreen();
 
         switch (choice) {
             case 1: {
+                std::cout << "Debug: Browsing items.\n";
                 itemController.viewAllItems();
                 break;
             }
             case 2: {
+                std::cout << "Debug: Viewing bids for an item.\n";
                 bidController.viewBidsForItem();
                 break;
             }
             case 3: {
+                std::cout << "Debug: Placing a bid.\n";
                 bidController.placeBid();
                 break;
             }
             case 4: {
+                std::cout << "Debug: Viewing user active bids.\n";
                 bidController.viewUserBids();
                 break;
             }
             case 5: {
-                std::cout << "Search Items:\n";
-                std::cout << "1. By Category\n";
-                std::cout << "2. By Keyword\n";
+                std::cout << "Debug: Searching items by category or keyword.\n";
                 int searchChoice;
+                std::cout << "Search Items:\n1. By Category\n2. By Keyword\nEnter choice: ";
                 std::cin >> searchChoice;
-                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-
                 if (searchChoice == 1) {
-                    std::cout << "\nAvailable Categories:\n";
-                    Category::displayCategories();
-                    itemController.searchItemsByCategory(); // Handles category search internally
+                    std::cout << "Debug: Searching by category.\n";
+                    itemController.searchItemsByCategory();
                 } else if (searchChoice == 2) {
-                    itemController.searchItemsByKeyword(); // Handles keyword search internally
+                    std::cout << "Debug: Searching by keyword.\n";
+                    itemController.searchItemsByKeyword();
                 } else {
                     std::cerr << "Invalid search choice.\n";
                 }
                 break;
             }
             case 6: {
+                std::cout << "Debug: Sorting items.\n";
                 itemController.sortItemsBy();
                 break;
             }
             case 7: {
+                std::cout << "Debug: Finalizing an auction.\n";
                 std::string itemId = InputValidator::validateString("Enter the Item ID to finalize auction: ");
                 bidController.finalizeAuction(itemId);
                 break;
             }
             case 8: {
+                std::cout << "Debug: Topping up credit points.\n";
                 double amount = InputValidator::validateDouble("Enter the amount to top-up (CP): ", 0.01, 1e6);
                 User* user = Authenticator::getLoggedUser();
                 user->setCreditPoints(user->getCreditPoints() + amount);
@@ -250,6 +243,7 @@ void MemberMenu::displayBuyerFeaturesMenu() {
                 break;
             }
             case 9: {
+                std::cout << "Debug: Returning to Member Menu.\n";
                 return;
             }
             default: {
@@ -264,7 +258,6 @@ void MemberMenu::displayBuyerFeaturesMenu() {
 
     } while (true);
 }
-
 
 void MemberMenu::displaySellerFeaturesMenu() {
     std::cout << "Debug: Entering Seller Features Menu\n";
